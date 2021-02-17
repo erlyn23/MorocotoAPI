@@ -30,5 +30,10 @@ namespace Morocoto.Domain.Services
         {
             return await _dbContext.SaveChangesAsync();
         }
+
+        public async Task Dispose()
+        {
+            await _dbContext.DisposeAsync();
+        }
     }
 }

@@ -6,15 +6,20 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace Morocoto.Domain.Services
 {
     public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
     {
-        private readonly MorocotoDbContext _dbContext;
-        public GenericRepository(MorocotoDbContext dbContext)
+        private readonly DbContext _dbContext;
+
+        //private readonly MorocotoDbContext _dbContext;
+
+        public GenericRepository(DbContext dbContext)
         {
             _dbContext = dbContext;
+            
         }
 
 
@@ -28,27 +33,34 @@ namespace Morocoto.Domain.Services
             return await _dbContext.Set<TEntity>().FindAsync();
         }
 
-        public async Task SaveElementAsync(TEntity entity)
+        public async Task AddElementAsync(TEntity entity)
         {
             await _dbContext.Set<TEntity>().AddAsync(entity);
         }
 
-        public void UpdateElement(TEntity entity)
+        public async Task AddElementsAsync(IEnumerable<TEntity> entities)
         {
-           _dbContext.Set<TEntity>().Update(entity);
+            await _dbContext.Set<TEntity>().AddRangeAsync(entities);
         }
 
-        public async Task DeleteElementAsync(int entityId)
+        public void UpdateElement(TEntity entity)
         {
-            var entity = await _dbContext.Set<TEntity>().FindAsync(entityId);
-            if(entity != null)
-            {
-                _dbContext.Set<TEntity>().Remove(entity);
-            }
+            _dbContext.Entry(entity).State = EntityState.Modified;
         }
-        public async Task<int> SaveChangesAsync()
+
+        public void RemoveElementAsync(TEntity entity)
         {
-            return await _dbContext.SaveChangesAsync();
+            _dbContext.Set<TEntity>().Remove(entity);
+        }
+
+        public void RemoveElementsAsync(IEnumerable<TEntity> entities)
+        {
+            _dbContext.Set<TEntity>().RemoveRange(entities);
+        }
+
+        public async  Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await _dbContext.Set<TEntity>().FirstOrDefaultAsync(predicate);
         }
     }
 }
