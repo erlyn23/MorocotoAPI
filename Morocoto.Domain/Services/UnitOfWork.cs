@@ -9,7 +9,7 @@ namespace Morocoto.Domain.Services
 {
     public class UnitOfWork
     {
-        private IUserRepository _userRepository;
+        private IAsyncUserRepository _userRepository;
         private MorocotoDbContext _dbContext;
         public UnitOfWork(MorocotoDbContext dbContext)
         {

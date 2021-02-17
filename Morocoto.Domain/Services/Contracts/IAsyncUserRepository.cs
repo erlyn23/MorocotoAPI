@@ -7,7 +7,7 @@ using Morocoto.Domain.Models;
 
 namespace Morocoto.Domain.Services.Contracts
 {
-    public interface IAsyncUserRepository: IAsyncGenericRepository<User>
+    public interface IAsyncUserRepository: IGenericRepository<User>
     {
         //Here we code methods for complementary searching that the generic repository would not include. All the generic methods are coded
         // in GenericRepository class, encapsulate those here is unnecesary.
