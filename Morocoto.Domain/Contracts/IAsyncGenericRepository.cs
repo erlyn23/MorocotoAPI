@@ -4,9 +4,9 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Morocoto.Domain.Services.Contracts
+namespace Morocoto.Domain.Contracts
 {
-    public interface IGenericRepository<TEntity> where TEntity : class
+    public interface IAsyncGenericRepository<TEntity> where TEntity : class
     {
         Task<IEnumerable<TEntity>> GetAllElementsAsync();
         Task<TEntity> GetElementByIdAsync(int entityId);
@@ -15,5 +15,5 @@ namespace Morocoto.Domain.Services.Contracts
         Task AddElementsAsync(IEnumerable<TEntity> entities);
         void RemoveElementAsync(TEntity entity);
         void RemoveElementsAsync(IEnumerable<TEntity> entities);
-        }
+    }
 }

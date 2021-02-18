@@ -4,9 +4,10 @@ using System.Text;
 
 using Morocoto.Domain.Models;
 
-namespace Morocoto.Domain.Services.Contracts
+namespace Morocoto.Domain.Contracts
 {
     public interface IAsyncUserAddressRepository: IAsyncGenericRepository<UserAddress>
     {
+
     }
 }

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Morocoto.Domain.Services.Contracts
+namespace Morocoto.Domain.Contracts
 {
     public interface IAsyncBusinessAddressRepository: IAsyncGenericRepository<BusinessAddress>
     {

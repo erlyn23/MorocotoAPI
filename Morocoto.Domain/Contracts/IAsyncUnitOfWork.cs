@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Morocoto.Domain.Services.Contracts
+namespace Morocoto.Domain.Contracts
 {
     public interface IAsyncUnitOfWork:IDisposable
     {

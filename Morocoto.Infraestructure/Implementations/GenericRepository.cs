@@ -1,5 +1,4 @@
 ﻿using Morocoto.Domain.DbContexts;
-using Morocoto.Domain.Services.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,16 +6,15 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Linq.Expressions;
+using Morocoto.Domain.Contracts;
 
-namespace Morocoto.Domain.Services
+namespace Morocoto.Infraestructure.Implementations
 {
-    public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
+    public class GenericRepository<TEntity> : IAsyncGenericRepository<TEntity> where TEntity : class
     {
-        private readonly DbContext _dbContext;
+        private readonly MorocotoDbContext _dbContext;
 
-        //private readonly MorocotoDbContext _dbContext;
-
-        public GenericRepository(DbContext dbContext)
+        public GenericRepository(MorocotoDbContext dbContext)
         {
             _dbContext = dbContext;
             
