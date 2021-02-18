@@ -12,9 +12,9 @@ namespace Morocoto.Infraestructure.Implementations
 {
     public class GenericRepository<TEntity> : IAsyncGenericRepository<TEntity> where TEntity : class
     {
-        private readonly MorocotoDbContext _dbContext;
+        private readonly DbContext _dbContext;
 
-        public GenericRepository(MorocotoDbContext dbContext)
+        public GenericRepository(DbContext dbContext)
         {
             _dbContext = dbContext;
             
@@ -26,9 +26,10 @@ namespace Morocoto.Infraestructure.Implementations
             return await _dbContext.Set<TEntity>().ToListAsync();
         }
 
-        public async Task<TEntity> GetElementByIdAsync(int entityId)
+        public async Task<TEntity> GetElementByIdAsync(TEntity entity)
         {
-            return await _dbContext.Set<TEntity>().FindAsync();
+
+            return  await _dbContext.Set<TEntity>().FindAsync(entity);
         }
 
         public async Task AddElementAsync(TEntity entity)

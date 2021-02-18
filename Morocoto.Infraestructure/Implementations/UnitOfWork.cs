@@ -149,7 +149,7 @@ namespace Morocoto.Infraestructure.Implementations
             }
         }
 
-        public async Task<int> SaveChangesAsync()
+        public async Task<int> CompleteAsync()
         {
             return await _dbContext.SaveChangesAsync();
         }
