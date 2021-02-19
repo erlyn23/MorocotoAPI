@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Morocoto.Infraestructure.Implementations
 {
-    public class UnitOfWork
+    public class UnitOfWork: IAsyncUnitOfWork
     {
         private IAsyncUserRepository _userRepository;
         private IAsyncUserAddressRepository _userAddressRepository;
@@ -154,9 +154,14 @@ namespace Morocoto.Infraestructure.Implementations
             return await _dbContext.SaveChangesAsync();
         }
 
-        public async Task Dispose()
+        public async Task DisposeAsync()
         {
             await _dbContext.DisposeAsync();
+        }
+
+        void IDisposable.Dispose()
+        {
+            _dbContext.Dispose();
         }
     }
 }
