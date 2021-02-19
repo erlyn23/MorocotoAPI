@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Morocoto.Infraestructure.Tools
 {
-    public class Encryptation
+    public class Encryption
     {
         public static string Encrypt(string stringToEncrypt)
         {

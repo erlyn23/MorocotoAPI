@@ -15,6 +15,7 @@ namespace Morocoto.Domain.Models
         }
 
         public int Id { get; set; }
+        public decimal CreditAvailable { get; set; }
 
         public virtual User IdNavigation { get; set; }
         public virtual ICollection<BuyCredit> BuyCredits { get; set; }

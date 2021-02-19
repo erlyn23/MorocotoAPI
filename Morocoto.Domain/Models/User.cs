@@ -24,6 +24,7 @@ namespace Morocoto.Domain.Models
         public string UserPassword { get; set; }
         public string Pin { get; set; }
         public string SecurityAnswer { get; set; }
+        public bool Active { get; set; }
         public int UserTypeId { get; set; }
         public int SecurityQuestionId { get; set; }
 
