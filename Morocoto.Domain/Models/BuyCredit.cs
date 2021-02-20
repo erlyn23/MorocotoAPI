@@ -8,7 +8,7 @@ namespace Morocoto.Domain.Models
     public partial class BuyCredit
     {
         public int Id { get; set; }
-        public int PartnerId { get; set; }
+        public int BusinessId { get; set; }
         public int CustomerId { get; set; }
         public decimal CreditBought { get; set; }
         public DateTime CreditBoughtDate { get; set; }
@@ -17,6 +17,6 @@ namespace Morocoto.Domain.Models
 
         public virtual Customer Customer { get; set; }
         public virtual CustomerTaxis CustomerTax { get; set; }
-        public virtual Partner Partner { get; set; }
+        public virtual Business Business { get; set; }
     }
 }

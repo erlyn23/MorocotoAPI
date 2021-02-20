@@ -24,6 +24,7 @@ namespace Morocoto.Infraestructure.Services
         private readonly IAsyncUserRepository _userRepository;
         private readonly IAsyncUserAddressRepository _userAddressRepository;
         private readonly IAsyncUserPhoneNumberRepository _userPhoneNumberRepository;
+        private readonly BuildConfirmations _confirmations;
         private readonly IConfiguration _configuration;
         private EmailVerificationResponse emailVerification = new EmailVerificationResponse();
         private readonly string filePath = $"{Environment.CurrentDirectory}/confirmation_account_data.txt";
@@ -32,12 +33,14 @@ namespace Morocoto.Infraestructure.Services
             IAsyncUserRepository userRepository, 
             IAsyncUserAddressRepository userAddressRepository, 
             IAsyncUserPhoneNumberRepository userPhoneNumberRepository,
+            BuildConfirmations confirmations,
             IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _userRepository = userRepository;
             _userAddressRepository = userAddressRepository;
             _userPhoneNumberRepository = userPhoneNumberRepository;
+            _confirmations = confirmations;
             _configuration = configuration;
         }
 
@@ -89,7 +92,7 @@ namespace Morocoto.Infraestructure.Services
 
         public async Task<EmailVerificationResponse> SendEmailConfirmationAsync(string userEmail)
         {
-            emailVerification.RandomCode = BuildConfirmationCode();
+            emailVerification.RandomCode = _confirmations.BuildConfirmationCode();
             emailVerification.ExpireDate = DateTime.UtcNow.AddMinutes(30);
             string email = _configuration["EmailAccount:AppEmail"];
             SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
@@ -124,19 +127,7 @@ namespace Morocoto.Infraestructure.Services
             return emailVerification;
         }
 
-        private string BuildConfirmationCode()
-        {
-            Random random = new Random();
-            string randomCode = string.Empty;
-            StringBuilder stringBuilder = new StringBuilder();
-
-            for (int index = 0; index < 6; index++)
-            {
-                string randomNumber = random.Next(0, 9).ToString();
-                randomCode = stringBuilder.Append(randomNumber).ToString();
-            }
-            return randomCode;
-        }
+     
         public async Task<bool> SetAccountActive(string identificationDocument, string verificationNumber)
         {
             DateTime expirationDate;

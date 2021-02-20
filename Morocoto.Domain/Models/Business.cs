@@ -24,6 +24,7 @@ namespace Morocoto.Domain.Models
 
         public virtual BusinessType BusinessType { get; set; }
         public virtual Partner Partner { get; set; }
+        public virtual ICollection<BuyCredit> BuyCredits { get; set; }
         public virtual ICollection<BusinessAddress> BusinessAddresses { get; set; }
         public virtual ICollection<BusinessBill> BusinessBills { get; set; }
         public virtual ICollection<BusinessPhoneNumber> BusinessPhoneNumbers { get; set; }

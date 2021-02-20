@@ -156,7 +156,7 @@ namespace Morocoto.Domain.DbContexts
 
             modelBuilder.Entity<BuyCredit>(entity =>
             {
-                entity.HasKey(e => new { e.Id, e.PartnerId, e.CustomerId })
+                entity.HasKey(e => new { e.Id, e.BusinessId, e.CustomerId })
                     .HasName("BuyCredits_Pk");
 
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
@@ -181,11 +181,11 @@ namespace Morocoto.Domain.DbContexts
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("BuyCredits_CustomerTaxesId");
 
-                entity.HasOne(d => d.Partner)
+                entity.HasOne(d => d.Business)
                     .WithMany(p => p.BuyCredits)
-                    .HasForeignKey(d => d.PartnerId)
+                    .HasForeignKey(d => d.BusinessId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("BuyCredits_Partners_Fk");
+                    .HasConstraintName("BuyCredits_Business_Fk");
             });
 
             modelBuilder.Entity<Customer>(entity =>
