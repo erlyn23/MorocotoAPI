@@ -9,6 +9,7 @@ using Morocoto.Infraestructure.Tools;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Net;
 using System.Net.Mail;
 using System.Security.Claims;
@@ -25,6 +26,7 @@ namespace Morocoto.Infraestructure.Services
         private readonly IAsyncUserPhoneNumberRepository _userPhoneNumberRepository;
         private readonly IConfiguration _configuration;
         private EmailVerificationResponse emailVerification = new EmailVerificationResponse();
+        private readonly string filePath = $"{Environment.CurrentDirectory}/confirmation_account_data.txt";
         public AccountService(
             IAsyncUnitOfWork unitOfWork, 
             IAsyncUserRepository userRepository, 
@@ -101,12 +103,18 @@ namespace Morocoto.Infraestructure.Services
             mailMessage.From = new MailAddress(email, "Morocoto App");
             mailMessage.To.Add(new MailAddress(userEmail));
             mailMessage.Subject = "Confirmación de cuenta MorocotoApp";
-            mailMessage.Body = $"Hola, el número de verificación de tu cuenta de morocoto es {emailVerification.RandomCode}, y expira en los próximos 30 minutos.";
+            mailMessage.Body = $"Hola, el número de verificación de tu cuenta de morocoto es: " +
+                $"<b>{emailVerification.RandomCode}</b>, y expira en los próximos <b>30 minutos.</b>";
+            mailMessage.IsBodyHtml = true;
 
             try
             {
-
                 await smtpClient.SendMailAsync(mailMessage);
+                //TODO: Cambiar el archivo a un JSON con claves únicas para no cargar el server con txts.
+                using(var streamWritter = new StreamWriter(filePath))
+                {
+                    streamWritter.WriteLine($"{emailVerification.RandomCode},{emailVerification.ExpireDate}");
+                }
             }
             catch(Exception ex)
             {
@@ -131,23 +139,39 @@ namespace Morocoto.Infraestructure.Services
         }
         public async Task<bool> SetAccountActive(string identificationDocument, string verificationNumber)
         {
-            DateTime expirationDate = emailVerification.ExpireDate;
-            DateTime now = DateTime.UtcNow;
+            DateTime expirationDate;
+            string confirmationCode = string.Empty;
 
+            using(var streamReader = new StreamReader(filePath))
+            {
+                string[] dataSplitted = streamReader.ReadLine().Split(',');
+                confirmationCode = dataSplitted[0];
+                expirationDate = DateTime.Parse(dataSplitted[1]);
+            }
+
+            DateTime now = DateTime.UtcNow;
             TimeSpan difference = expirationDate - now;
 
             int minutes = difference.Minutes;
 
             if(minutes <= 30)
             {
-                if(string.Equals(verificationNumber, emailVerification.RandomCode))
+                if(string.Equals(verificationNumber, confirmationCode))
                 {
                     var user = await _userRepository.FirstOrDefaultAsync(u => u.IdentificationDocument == identificationDocument);
 
                     user.Active = true;
                     var actived = await _unitOfWork.CompleteAsync();
-                    if (actived > 0) return true;
 
+                    if (actived > 0) 
+                    {
+                        //TODO: En vez de eliminar el archivo completo eliminar la clave del archivo JSON.
+                        if (File.Exists(filePath))
+                        {
+                            File.Delete(filePath);
+                            return true;
+                        }
+                    }
                     return false;
                 }
                 else 

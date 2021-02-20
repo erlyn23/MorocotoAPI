@@ -56,6 +56,23 @@ namespace Morocoto.API.Controllers
             }
         }
 
+        [HttpPost("SendEmailVerification")]
+        public async Task<ActionResult<EmailVerificationResponse>> SendEmailVerificationAsync([FromBody] string userEmail)
+        {
+            try
+            {
+                var emailVerificationResponse = await _accountService.SendEmailConfirmationAsync(userEmail);
+
+                if (emailVerificationResponse != null)
+                    return Ok(emailVerificationResponse);
+                return BadRequest();
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.ToString());
+            }
+        }
+
         [HttpPost("VerifyAccount")]
         public async Task<ActionResult<ActivateAccountModel>> ActivateAccountAsync([FromBody] ActivateAccountModel activateAccountModel)
         {
