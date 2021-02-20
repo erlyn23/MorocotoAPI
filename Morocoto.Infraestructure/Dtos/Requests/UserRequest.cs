@@ -22,7 +22,6 @@ namespace Morocoto.Infraestructure.Dtos.Requests
         [Required(ErrorMessage = "La cédula es requerida")]
         [MinLength(11, ErrorMessage = "La cédula solo debe contener 11 números")]
         [MaxLength(11, ErrorMessage = "La cédula solo debe contener 11 números")]
-        [IdentificationDocumentValidation]
         public string IdentificationDocument { get; set; }
         [Required(ErrorMessage = "El correo electrónico es requerido")]
         [MaxLength(50, ErrorMessage = "El correo no debe contener más de 11 letras")]
@@ -44,31 +43,7 @@ namespace Morocoto.Infraestructure.Dtos.Requests
         [Required(ErrorMessage = "Debes seleccionar una pregunta de seguridad")]
         public int SecurityQuestionId { get; set; }
 
-        public ICollection<UserAddress> UserAddresses { get; set; }
-        public ICollection<UserPhoneNumber> UserPhoneNumbers { get; set; }
-    }
-
-    public class IdentificationDocumentValidation: ValidationAttribute
-    {
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
-        {
-            try
-            {
-                IAsyncUserRepository userRepository = (UserRepository)validationContext.GetService(typeof(UserRepository));
-                string identificationDocument = value.ToString();
-
-                var userInDb = userRepository.FirstOrDefaultAsync(d => d.IdentificationDocument == identificationDocument);
-
-                if (userInDb != null)
-                {
-                    return new ValidationResult("La cédula ya existe, intente con un usuario diferente");
-                }
-                return ValidationResult.Success;
-            }
-            catch(Exception ex)
-            {
-                return new ValidationResult(ex.Message);
-            }
-        }
+        public ICollection<UserAddressRequest> UserAddresses { get; set; }
+        public ICollection<UserPhoneNumberRequest> UserPhoneNumbers { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Morocoto.Domain.Contracts;
 using Morocoto.Domain.Models;
 using Morocoto.Infraestructure.Dtos.Requests;
@@ -8,6 +9,9 @@ using Morocoto.Infraestructure.Tools;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
+using System.Net;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,6 +25,8 @@ namespace Morocoto.Infraestructure.Services
         private readonly IAsyncUserAddressRepository _userAddressRepository;
         private readonly IAsyncUserPhoneNumberRepository _userPhoneNumberRepository;
         private readonly IConfiguration _configuration;
+        private EmailVerificationResponse emailVerification = new EmailVerificationResponse();
+        private readonly string filePath = $"{Environment.CurrentDirectory}/confirmation_account_data.txt";
         public AccountService(
             IAsyncUnitOfWork unitOfWork, 
             IAsyncUserRepository userRepository, 
@@ -40,7 +46,7 @@ namespace Morocoto.Infraestructure.Services
             User userEntity = new User()
             {
                 FullName = user.FullName,
-                AccountNumber = user.AccountNumber,
+                AccountNumber = user.AccountNumber.Remove(9, 3),
                 UserPhone = user.UserPhone,
                 OsPhone = user.OsPhone,
                 IdentificationDocument = user.IdentificationDocument,
@@ -50,22 +56,135 @@ namespace Morocoto.Infraestructure.Services
                 Pin = Encryption.Encrypt(user.Pin),
                 SecurityAnswer = Encryption.Encrypt(user.SecurityAnswer),
                 UserTypeId = user.UserTypeId,
-                SecurityQuestionId = user.SecurityQuestionId,
-                UserAddresses = user.UserAddresses,
-                UserPhoneNumbers = user.UserPhoneNumbers
+                SecurityQuestionId = user.SecurityQuestionId
             };
+            userEntity.UserAddresses = new List<UserAddress>();
+            foreach(var userAddress in user.UserAddresses)
+            {
+                userEntity.UserAddresses.Add(new UserAddress()
+                {
+                    City = userAddress.City,
+                    Country = userAddress.Country,
+                    Street1 = userAddress.Street1,
+                    Street2 = userAddress.Street2,
+                    Province = userAddress.Province,
+                    UserId = userEntity.Id
+                });
+            };
+            userEntity.UserPhoneNumbers = new List<UserPhoneNumber>();
+            foreach(var userPhoneNumber in user.UserPhoneNumbers)
+            {
+                userEntity.UserPhoneNumbers.Add(new UserPhoneNumber()
+                {
+                    PhoneNumber = userPhoneNumber.PhoneNumber,
+                    UserId = userPhoneNumber.Id
+                });
+            }
             await _userRepository.AddElementAsync(userEntity);
             await _userAddressRepository.AddElementsAsync(userEntity.UserAddresses);
             await _userPhoneNumberRepository.AddElementsAsync(userEntity.UserPhoneNumbers);
-            //TODO: Enviar correo de verificación.
-
-            return await _unitOfWork.Complete();
+            await SendEmailConfirmationAsync(userEntity.Email);
+            return await _unitOfWork.CompleteAsync();
         }
 
-        public Task<bool> SendEmailConfirmationAsync()
+        public async Task<EmailVerificationResponse> SendEmailConfirmationAsync(string userEmail)
         {
-            throw new NotImplementedException();
+            emailVerification.RandomCode = BuildConfirmationCode();
+            emailVerification.ExpireDate = DateTime.UtcNow.AddMinutes(30);
+            string email = _configuration["EmailAccount:AppEmail"];
+            SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
+
+            smtpClient.Credentials = new NetworkCredential(email, _configuration["EmailAccount:AppEmailPassword"]);
+
+            smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
+            smtpClient.EnableSsl = true;
+            MailMessage mailMessage = new MailMessage();
+
+            mailMessage.From = new MailAddress(email, "Morocoto App");
+            mailMessage.To.Add(new MailAddress(userEmail));
+            mailMessage.Subject = "Confirmación de cuenta MorocotoApp";
+            mailMessage.Body = $"Hola, el número de verificación de tu cuenta de morocoto es: " +
+                $"<b>{emailVerification.RandomCode}</b>, y expira en los próximos <b>30 minutos.</b>";
+            mailMessage.IsBodyHtml = true;
+
+            try
+            {
+                await smtpClient.SendMailAsync(mailMessage);
+                //TODO: Cambiar el archivo a un JSON con claves únicas para no cargar el server con txts.
+                using(var streamWritter = new StreamWriter(filePath))
+                {
+                    streamWritter.WriteLine($"{emailVerification.RandomCode},{emailVerification.ExpireDate}");
+                }
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+
+            return emailVerification;
         }
+
+        private string BuildConfirmationCode()
+        {
+            Random random = new Random();
+            string randomCode = string.Empty;
+            StringBuilder stringBuilder = new StringBuilder();
+
+            for (int index = 0; index < 6; index++)
+            {
+                string randomNumber = random.Next(0, 9).ToString();
+                randomCode = stringBuilder.Append(randomNumber).ToString();
+            }
+            return randomCode;
+        }
+        public async Task<bool> SetAccountActive(string identificationDocument, string verificationNumber)
+        {
+            DateTime expirationDate;
+            string confirmationCode = string.Empty;
+
+            using(var streamReader = new StreamReader(filePath))
+            {
+                string[] dataSplitted = streamReader.ReadLine().Split(',');
+                confirmationCode = dataSplitted[0];
+                expirationDate = DateTime.Parse(dataSplitted[1]);
+            }
+
+            DateTime now = DateTime.UtcNow;
+            TimeSpan difference = expirationDate - now;
+
+            int minutes = difference.Minutes;
+
+            if(minutes <= 30)
+            {
+                if(string.Equals(verificationNumber, confirmationCode))
+                {
+                    var user = await _userRepository.FirstOrDefaultAsync(u => u.IdentificationDocument == identificationDocument);
+
+                    user.Active = true;
+                    var actived = await _unitOfWork.CompleteAsync();
+
+                    if (actived > 0) 
+                    {
+                        //TODO: En vez de eliminar el archivo completo eliminar la clave del archivo JSON.
+                        if (File.Exists(filePath))
+                        {
+                            File.Delete(filePath);
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                else 
+                {
+                    throw new Exception("El código de verificación no es válido");
+                }
+            }
+            else
+            {
+                throw new Exception("El código de verificación ya expiró");
+            }
+        }
+
         public async Task<UserResponse> SignInAsync(string identificationDocument, string password)
         {
             var user = await _userRepository.FirstOrDefaultAsync(user => user.IdentificationDocument == identificationDocument && user.UserPassword == Encryption.Encrypt(password));
@@ -85,14 +204,24 @@ namespace Morocoto.Infraestructure.Services
                 throw new Exception("Usuario o contraseña incorrecta, por favor verifique sus datos");
         }
 
-        public async Task<UserResponse> RecoverPasswordAsync(int userId, int securityQuestionId, string securityQuestionAnswer)
+        public async Task<int> RecoverPasswordAsync(ChangePasswordRequest changePasswordRequest)
         {
             //TODO: Enviar correo de verificación cambio contraseña.
-            var user = await _userRepository.FirstOrDefaultAsync(u => u.Id == userId);
-            if(user.SecurityQuestionId == securityQuestionId && user.SecurityAnswer == Encryption.Encrypt(securityQuestionAnswer))
+            var user = await _userRepository.FirstOrDefaultAsync(u => u.IdentificationDocument == changePasswordRequest.IdentificationDocument);
+            if(user != null)
             {
+                if (user.SecurityQuestionId == changePasswordRequest.SecurityQuestionId && user.SecurityAnswer == Encryption.Encrypt(changePasswordRequest.SecurityQuestionAnswer))
+                {
+                    if (!string.Equals(changePasswordRequest.Password1, changePasswordRequest.Password2))
+                        throw new Exception("Las contraseñas no coinciden");
+                    if (string.Equals(Encryption.Encrypt(changePasswordRequest.Password1), user.UserPassword))
+                        throw new Exception("La contraseña no puede ser igual a la anterior");
 
+                    user.UserPassword = changePasswordRequest.Password1;
+                    return await _unitOfWork.CompleteAsync();
+                }
             }
+            return 0;
         }
 
         private string BuildToken(User user)
@@ -106,6 +235,16 @@ namespace Morocoto.Infraestructure.Services
                 new Claim("AccountNumber", user.AccountNumber),
                 new Claim("Id", user.Id.ToString())
             };
+
+            var securityTokenDescriptor = new SecurityTokenDescriptor()
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddHours(3),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = jwtTokenHandler.CreateToken(securityTokenDescriptor);
+
+            return jwtTokenHandler.WriteToken(token);
         }
     }
 }

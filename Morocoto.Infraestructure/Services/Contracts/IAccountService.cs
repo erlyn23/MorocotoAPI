@@ -11,8 +11,9 @@ namespace Morocoto.Infraestructure.Services.Contracts
     public interface IAccountService
     {
         Task<int> RegisterUserAsync(UserRequest user);
-        Task<bool> SendEmailConfirmationAsync();
+        Task<EmailVerificationResponse> SendEmailConfirmationAsync(string userEmail);
+        Task<bool> SetAccountActive(string identificationDocument, string verificationNumber);
         Task<UserResponse> SignInAsync(string identificationDocument, string password);
-        Task<UserResponse> RecoverPasswordAsync(int securityQuestionId, string securityQuestionAnswer);
+        Task<int> RecoverPasswordAsync(ChangePasswordRequest changePasswordRequest);
     }
 }

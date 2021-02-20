@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -7,11 +8,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Morocoto.Domain.Contracts;
 using Morocoto.Domain.DbContexts;
+using Morocoto.Infraestructure.Implementations;
+using Morocoto.Infraestructure.Services;
+using Morocoto.Infraestructure.Services.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Morocoto.API
@@ -37,6 +44,31 @@ namespace Morocoto.API
             services.AddDbContext<MorocotoDbContext>(options => 
             options.UseSqlServer(Configuration.GetConnectionString("MorocotoDbConnection")
             ));
+
+            var key = Encoding.ASCII.GetBytes(Configuration["MySecretKey"]);
+
+            services.AddAuthentication(auth =>
+            {
+                auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(jwt => 
+            {
+                jwt.RequireHttpsMetadata = false;
+                jwt.SaveToken = true;
+                jwt.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+
+            services.AddTransient<IAccountService, AccountService>();
+            services.AddTransient<IAsyncUnitOfWork, UnitOfWork>();
+            services.AddTransient<IAsyncUserRepository, UserRepository>();
+            services.AddTransient<IAsyncUserAddressRepository, UserAddressRepository>();
+            services.AddTransient<IAsyncUserPhoneNumberRepository, UserPhoneNumberRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -52,6 +84,8 @@ namespace Morocoto.API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
