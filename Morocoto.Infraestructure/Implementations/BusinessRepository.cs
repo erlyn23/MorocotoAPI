@@ -24,11 +24,12 @@ namespace Morocoto.Infraestructure.Implementations
         {
             return await _dbContext.Businesses.Include(x=>x.BusinessAddresses).Include(x=>x.BusinessBills).Where(predicate).ToListAsync();
         }
-        public async Task<Business> GetBusinessByAccountNumberAsync(int businessAccountNumber)
+        //Note: BusinessAccountNumber is encrypted.
+        public async Task<Business> GetBusinessByAccountNumberAsync(string businessAccountNumber)
         { 
             return await _dbContext.Businesses.FirstOrDefaultAsync(x => x.BusinessNumber == businessAccountNumber);
         }
-        public async Task<bool> IsAbleForSell(int businessAccountNumber, double creditRequested)
+        public async Task<bool> IsAbleForSell(string businessAccountNumber, double creditRequested)
         {
             var seller = await _dbContext.Businesses.FirstOrDefaultAsync(x => x.BusinessNumber == businessAccountNumber);
             

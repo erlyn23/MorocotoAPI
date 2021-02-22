@@ -21,7 +21,7 @@ namespace Morocoto.API.Controllers
             this._work = work;
         }
 
-        [HttpGet("/getAllBusiness/{partnerId}")]
+        [HttpGet("/GetAllBusiness/{partnerId}")]
         public async Task<ActionResult<IEnumerable<BusinessResponse>>> GetAll(int partnerId)
         {
             var response = await _work.BusinessRepository.GetAllPartnerBusinessesAsync(x=>x.PartnerId==partnerId);
@@ -30,15 +30,15 @@ namespace Morocoto.API.Controllers
         }
         
         [HttpPost]
-        public async Task<ActionResult<string>> SellCredit(int businessAccountNumber,string customerAccountNumber, int creditRequested, string pin )
+        public async Task<ActionResult<string>> SellCredit(string businessAccountNumber,string customerAccountNumber, int creditRequested, string pin )
         {
-            var customer = await _work.CustomerRepository.FirstOrDefaultAsync(x=>x.IdNavigation.AccountNumber.Equals(customerAccountNumber));
+            
             var business = await _work.BusinessRepository.GetBusinessByAccountNumberAsync(businessAccountNumber);
             var isAbleToSell = await _work.BusinessRepository.IsAbleForSell(business.BusinessNumber,creditRequested);
             
             if (isAbleToSell)
             {
-                string response=await _work.BuyCreditRepository.SellCredit(business,customer,creditRequested,pin);
+                string response=await _work.BuyCreditRepository.SellCredit(businessAccountNumber,customerAccountNumber,creditRequested,pin);
                 return Ok(response);
             }
             return BadRequest();
