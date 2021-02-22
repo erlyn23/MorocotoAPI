@@ -15,6 +15,8 @@ using Morocoto.Domain.DbContexts;
 using Morocoto.Infraestructure.Implementations;
 using Morocoto.Infraestructure.Services;
 using Morocoto.Infraestructure.Services.Contracts;
+using Morocoto.Infraestructure.Tools;
+using Morocoto.Infraestructure.Tools.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,6 +71,7 @@ namespace Morocoto.API
             services.AddTransient<IAsyncUserRepository, UserRepository>();
             services.AddTransient<IAsyncUserAddressRepository, UserAddressRepository>();
             services.AddTransient<IAsyncUserPhoneNumberRepository, UserPhoneNumberRepository>();
+            services.AddTransient<IAccountTools, AccountTools>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

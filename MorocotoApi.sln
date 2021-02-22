@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morocoto.Infraestructure", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morocoto.Domain", "Morocoto.Domain\Morocoto.Domain.csproj", "{A866BFEA-B760-41F6-B1EE-C0002CFF9B1D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Morocoto.Tests", "Morocoto.Tests\Morocoto.Tests.csproj", "{F6EE72F2-86B9-4D98-93F5-E34F45CD131A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Morocoto.Tests", "Morocoto.Tests\Morocoto.Tests.csproj", "{F6EE72F2-86B9-4D98-93F5-E34F45CD131A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

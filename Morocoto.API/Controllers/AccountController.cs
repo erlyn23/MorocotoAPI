@@ -4,6 +4,7 @@ using Morocoto.API.Models;
 using Morocoto.Infraestructure.Dtos.Requests;
 using Morocoto.Infraestructure.Dtos.Responses;
 using Morocoto.Infraestructure.Services.Contracts;
+using Morocoto.Infraestructure.Tools.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,10 +17,12 @@ namespace Morocoto.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
+        private readonly IAccountTools _accountTools;
 
-        public AccountController(IAccountService accountService)
+        public AccountController(IAccountService accountService, IAccountTools accountTools)
         {
             _accountService = accountService;
+            _accountTools = accountTools;
         }
 
         [HttpPost(Name = "SaveUser")]
@@ -61,7 +64,7 @@ namespace Morocoto.API.Controllers
         {
             try
             {
-                var emailVerificationResponse = await _accountService.SendEmailConfirmationAsync(userEmail);
+                var emailVerificationResponse = await _accountTools.SendEmailConfirmationAsync(userEmail);
 
                 if (emailVerificationResponse != null)
                     return Ok(emailVerificationResponse);
@@ -73,7 +76,7 @@ namespace Morocoto.API.Controllers
             }
         }
 
-        [HttpPost("VerifyAccount")]
+        [HttpPut("VerifyAccount")]
         public async Task<ActionResult<ActivateAccountModel>> ActivateAccountAsync([FromBody] ActivateAccountModel activateAccountModel)
         {
             try
@@ -85,6 +88,21 @@ namespace Morocoto.API.Controllers
                 return BadRequest();
             }
             catch(Exception ex)
+            {
+                return BadRequest(ex.ToString());
+            }
+        }
+        [HttpPut("ChangePassword")]
+        public async Task<ActionResult<int>> RecoverPasswordAsync([FromBody] ChangePasswordRequest changePasswordRequest) 
+        {
+            try
+            {
+                var changePasswordResult = await _accountService.RecoverPasswordAsync(changePasswordRequest);
+                if (changePasswordResult > 0)
+                    return Ok(changePasswordResult);
+                return BadRequest();
+            }
+            catch(Exception ex) 
             {
                 return BadRequest(ex.ToString());
             }
