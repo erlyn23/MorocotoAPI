@@ -27,6 +27,7 @@ namespace Morocoto.API
 {
     public class Startup
     {
+        private readonly string _myCors = "MyCorsPolicy";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -37,7 +38,13 @@ namespace Morocoto.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddCors(builder =>
+            {
+                builder.AddPolicy(_myCors, policy =>
+                {
+                    policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                });
+            });
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -88,6 +95,8 @@ namespace Morocoto.API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            
+            app.UseCors(_myCors);
 
             app.UseAuthentication();
 

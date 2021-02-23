@@ -12,21 +12,22 @@ namespace Morocoto.Infraestructure.Dtos.Requests
     public class UserRequest
     {
         public int Id { get; set; }
-        public string AccountNumber { get; set; }
+        public string AccountNumber { get; set; } //No Fillable for register
         [Required(ErrorMessage ="El nombre es requerido")]
         [MinLength(10, ErrorMessage = "El nombre debe contener al menos 10 letras")]
         [MaxLength(50, ErrorMessage="El nombre no debe contener más de 50 letras")]
         public string FullName { get; set; }
-        public string UserPhone { get; set; }
-        public string OsPhone { get; set; }
+        public string UserPhone { get; set; } //No fillable for register or update.
+        public string OsPhone { get; set; } //No fillable for register or update.
         [Required(ErrorMessage = "La cédula es requerida")]
         [MinLength(11, ErrorMessage = "La cédula solo debe contener 11 números")]
         [MaxLength(11, ErrorMessage = "La cédula solo debe contener 11 números")]
-        public string IdentificationDocument { get; set; }
+        public string IdentificationDocument { get; set; } 
         [Required(ErrorMessage = "El correo electrónico es requerido")]
-        [MaxLength(50, ErrorMessage = "El correo no debe contener más de 11 letras")]
+        [MaxLength(50, ErrorMessage = "El correo no debe contener más de 50 letras")]
         public string Email { get; set; }
         [Required(ErrorMessage = "La fecha de nacimiento es requerida")]
+        [GreatherThanEighteenYearsOld(ErrorMessage = "Debes ser mayor a 18 años para registrarte")]
         public DateTime BirthDate { get; set; }
         [Required(ErrorMessage = "La contraseña es requerida")]
         [MinLength(4, ErrorMessage = "La contraseña debe contener al menos 4 números")]
@@ -45,5 +46,27 @@ namespace Morocoto.Infraestructure.Dtos.Requests
 
         public ICollection<UserAddressRequest> UserAddresses { get; set; }
         public ICollection<UserPhoneNumberRequest> UserPhoneNumbers { get; set; }
+    }
+
+    public class GreatherThanEighteenYearsOld: ValidationAttribute 
+    {
+        public override bool IsValid(object value)
+        {
+            try
+            {
+                DateTime birthDate = DateTime.Parse(value.ToString());
+                DateTime now = DateTime.UtcNow;
+
+                TimeSpan difference = now - birthDate;
+                double years = Math.Round(difference.TotalDays / 365);
+                if (years >= 18)
+                    return true;
+                return false;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
