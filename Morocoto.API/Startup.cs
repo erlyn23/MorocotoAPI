@@ -72,6 +72,7 @@ namespace Morocoto.API
             services.AddTransient<IAsyncUserAddressRepository, UserAddressRepository>();
             services.AddTransient<IAsyncUserPhoneNumberRepository, UserPhoneNumberRepository>();
             services.AddTransient<IAccountTools, AccountTools>();
+            services.AddSingleton<IEmailTools, EmailTools>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

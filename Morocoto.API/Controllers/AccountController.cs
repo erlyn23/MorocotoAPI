@@ -47,7 +47,7 @@ namespace Morocoto.API.Controllers
         {
             try
             {
-                var userResponse = await _accountService.SignInAsync(authModel.IdentificationDocument, authModel.UserPassword);
+                var userResponse = await _accountService.SignInAsync(authModel.IdentificationDocument, authModel.UserPassword, authModel.UserPhone, authModel.OsPhone);
 
                 if (userResponse != null)
                     return Ok(userResponse);

@@ -9,5 +9,7 @@ namespace Morocoto.API.Models
     {
         public string IdentificationDocument { get; set; }
         public string UserPassword { get; set; }
+        public string UserPhone { get; set; }
+        public string OsPhone { get; set; }
     }
 }
