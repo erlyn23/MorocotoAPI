@@ -7,6 +7,7 @@ namespace Morocoto.API.Models
 {
     public class SendEmailRequest
     {
+        public string IdentificationDocument { get; set; }
         public string UserEmail { get; set; }
     }
 }

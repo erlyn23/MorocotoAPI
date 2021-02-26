@@ -11,7 +11,7 @@ namespace Morocoto.Infraestructure.Tools.Contracts
     {
         void CreateJsonFileWithConfirmationData(EmailVerificationResponse emailVerificationResponse);
         List<EmailVerificationResponse> GetConfirmationDataFromJsonFile();
-        Task<EmailVerificationResponse> SendEmailConfirmationAsync(string userEmail);
+        Task<EmailVerificationResponse> SendEmailConfirmationAsync(string userEmail, string identificationDocument);
         string BuildToken(User user);
     }
 }

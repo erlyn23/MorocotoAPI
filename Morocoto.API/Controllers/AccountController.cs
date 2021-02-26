@@ -38,7 +38,7 @@ namespace Morocoto.API.Controllers
             }
             catch(Exception ex)
             {
-                return BadRequest(ex.ToString());
+                return BadRequest(ex.Message);
             }
         }
 
@@ -55,16 +55,16 @@ namespace Morocoto.API.Controllers
             }
             catch(Exception ex)
             {
-                return BadRequest(ex.ToString());
+                return BadRequest(ex.Message);
             }
         }
 
-        [HttpPost("SendEmailVerification")]
+        [HttpPost("SendEmailVerificationWithEmail")]
         public async Task<ActionResult<EmailVerificationResponse>> SendEmailVerificationAsync([FromBody] SendEmailRequest sendEmailRequest)
         {
             try
             {
-                var emailVerificationResponse = await _accountTools.SendEmailConfirmationAsync(sendEmailRequest.UserEmail);
+                var emailVerificationResponse = await _accountTools.SendEmailConfirmationAsync(sendEmailRequest.UserEmail, "");
 
                 if (emailVerificationResponse != null)
                     return Ok(emailVerificationResponse);
@@ -72,7 +72,24 @@ namespace Morocoto.API.Controllers
             }
             catch(Exception ex)
             {
-                return BadRequest(ex.ToString());
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("SendEmailVerificationWithIdentificationDocument")]
+        public async Task<ActionResult<EmailVerificationResponse>> SendEmailVerificationWithIdentificationDocumentAsync([FromBody] SendEmailRequest sendEmailRequest)
+        {
+            try
+            {
+                var emailVerificationResponse = await _accountTools.SendEmailConfirmationAsync("", sendEmailRequest.IdentificationDocument);
+
+                if (emailVerificationResponse != null)
+                    return Ok(emailVerificationResponse);
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 
@@ -89,7 +106,7 @@ namespace Morocoto.API.Controllers
             }
             catch(Exception ex)
             {
-                return BadRequest(ex.ToString());
+                return BadRequest(ex.Message);
             }
         }
         [HttpPatch("ChangePassword")]
@@ -104,7 +121,7 @@ namespace Morocoto.API.Controllers
             }
             catch(Exception ex) 
             {
-                return BadRequest(ex.ToString());
+                return BadRequest(ex.Message);
             }
         }
     }

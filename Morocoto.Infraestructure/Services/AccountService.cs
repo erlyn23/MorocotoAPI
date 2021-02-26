@@ -93,7 +93,7 @@ namespace Morocoto.Infraestructure.Services
             await _userRepository.AddElementAsync(userEntity);
             await _userAddressRepository.AddElementsAsync(userEntity.UserAddresses);
             await _userPhoneNumberRepository.AddElementsAsync(userEntity.UserPhoneNumbers);
-            await _accountTools.SendEmailConfirmationAsync(userEntity.Email);
+            await _accountTools.SendEmailConfirmationAsync(userEntity.Email, "");
             return await _unitOfWork.CompleteAsync();
         }
      
@@ -168,7 +168,7 @@ namespace Morocoto.Infraestructure.Services
         {
             //TODO: Enviar correo de verificación cambio contraseña.
             var user = await _userRepository.FirstOrDefaultAsync(u => u.IdentificationDocument == changePasswordRequest.IdentificationDocument);
-            if(user != null)
+            if (user != null)
             {
                 if (user.SecurityQuestionId == changePasswordRequest.SecurityQuestionId && user.SecurityAnswer == Encryption.Encrypt(changePasswordRequest.SecurityQuestionAnswer))
                 {
@@ -185,6 +185,8 @@ namespace Morocoto.Infraestructure.Services
                     throw new Exception("La respuesta de seguridad es incorrecta");
                 }
             }
+            else
+                throw new Exception($"El usuario con la cédula {changePasswordRequest.IdentificationDocument} no existe");
             return 0;
         }
     }
