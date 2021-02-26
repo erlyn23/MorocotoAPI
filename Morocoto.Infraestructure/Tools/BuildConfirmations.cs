@@ -14,7 +14,7 @@ namespace Morocoto.Infraestructure.Tools
 
             for (int index = 0; index < 6; index++)
             {
-                string randomNumber = random.Next(0, 9).ToString();
+                string randomNumber = random.Next(1, 9).ToString();
                 randomCode = stringBuilder.Append(randomNumber).ToString();
             }
             return randomCode;

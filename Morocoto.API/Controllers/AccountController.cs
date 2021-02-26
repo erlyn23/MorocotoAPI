@@ -60,11 +60,11 @@ namespace Morocoto.API.Controllers
         }
 
         [HttpPost("SendEmailVerification")]
-        public async Task<ActionResult<EmailVerificationResponse>> SendEmailVerificationAsync([FromBody] string userEmail)
+        public async Task<ActionResult<EmailVerificationResponse>> SendEmailVerificationAsync([FromBody] SendEmailRequest sendEmailRequest)
         {
             try
             {
-                var emailVerificationResponse = await _accountTools.SendEmailConfirmationAsync(userEmail);
+                var emailVerificationResponse = await _accountTools.SendEmailConfirmationAsync(sendEmailRequest.UserEmail);
 
                 if (emailVerificationResponse != null)
                     return Ok(emailVerificationResponse);
@@ -76,7 +76,7 @@ namespace Morocoto.API.Controllers
             }
         }
 
-        [HttpPut("VerifyAccount")]
+        [HttpPatch("VerifyAccount")]
         public async Task<ActionResult<ActivateAccountModel>> ActivateAccountAsync([FromBody] ActivateAccountModel activateAccountModel)
         {
             try
@@ -92,7 +92,7 @@ namespace Morocoto.API.Controllers
                 return BadRequest(ex.ToString());
             }
         }
-        [HttpPut("ChangePassword")]
+        [HttpPatch("ChangePassword")]
         public async Task<ActionResult<int>> RecoverPasswordAsync([FromBody] ChangePasswordRequest changePasswordRequest) 
         {
             try
