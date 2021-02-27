@@ -18,7 +18,7 @@ namespace Morocoto.Domain.Models
         public int Id { get; set; }
         public int PartnerId { get; set; }
         public int BusinessTypeId { get; set; }
-        public int BusinessNumber { get; set; }
+        public string BusinessNumber { get; set; }
         public string BusinessName { get; set; }
         public decimal? BusinessCreditAvailable { get; set; }
 

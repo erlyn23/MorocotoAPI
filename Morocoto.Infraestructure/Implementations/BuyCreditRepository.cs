@@ -47,6 +47,7 @@ namespace Morocoto.Infraestructure.Implementations
         {
             //PLEASE!: USE PERCENTAGES FOR TAXES FIELDS! 100 => 5 5=0.05;
             var tax = await _tax.CalculateTax(creditSelled);
+
             decimal commission = creditSelled * tax.Tax;
             var customerResponse = await _customerRepository.FirstOrDefaultAsync(x => x.IdNavigation.AccountNumber == Encryption.Encrypt(accountCustomer));
             var businessResponse = await _businessRepository.FirstOrDefaultAsync(x => x.BusinessNumber == Encryption.Encrypt(accountBusiness));
