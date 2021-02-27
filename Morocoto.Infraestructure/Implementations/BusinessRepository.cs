@@ -9,14 +9,16 @@ using System.Linq.Expressions;
 
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Morocoto.Infraestructure.Tools;
 
 namespace Morocoto.Infraestructure.Implementations
 {
     public class BusinessRepository: GenericRepository<Business>, IAsyncBusinessRepository
     {
         private readonly MorocotoDbContext _dbContext;
+     
 
-        public BusinessRepository(MorocotoDbContext dbContext): base(dbContext)
+        public BusinessRepository(MorocotoDbContext dbContext) : base(dbContext)
         {
             this._dbContext = dbContext;
         }
@@ -27,13 +29,16 @@ namespace Morocoto.Infraestructure.Implementations
         //Note: BusinessAccountNumber is encrypted.
         public async Task<Business> GetBusinessByAccountNumberAsync(string businessAccountNumber)
         { 
-            return await _dbContext.Businesses.FirstOrDefaultAsync(x => x.BusinessNumber == businessAccountNumber);
+            var businessNumberEncrypted = Encryption.Encrypt(businessAccountNumber);
+            var response = await _dbContext.Businesses.FirstOrDefaultAsync(x => x.BusinessNumber == businessNumberEncrypted);
+            return response;
         }
         public async Task<bool> IsAbleForSell(string businessAccountNumber, double creditRequested)
         {
-            var seller = await _dbContext.Businesses.FirstOrDefaultAsync(x => x.BusinessNumber == businessAccountNumber);
-            
-            if (seller.BusinessCreditAvailable >= (int)creditRequested)
+            var businessNumberEncrypted = Encryption.Encrypt(businessAccountNumber);
+            var response = await _dbContext.Businesses.FirstOrDefaultAsync(x => x.BusinessNumber == businessNumberEncrypted);
+
+            if (response.BusinessCreditAvailable >= (int)creditRequested)
             {
                 return true;
             }

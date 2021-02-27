@@ -37,7 +37,10 @@ namespace Morocoto.Domain.DbContexts
         public virtual DbSet<UserPhoneNumber> UserPhoneNumbers { get; set; }
         public virtual DbSet<UserType> UserTypes { get; set; }
 
+        protected internal virtual void OnConfiguring(DbContextOptionsBuilder<MorocotoDbContext> optionsBuilder)
+        {
 
+        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "Modern_Spanish_CI_AS");
