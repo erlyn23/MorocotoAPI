@@ -29,22 +29,30 @@ namespace Morocoto.Infraestructure.Services
         private readonly IAsyncUserPhoneNumberRepository _userPhoneNumberRepository;
         private readonly string filePath = $"{Environment.CurrentDirectory}/confirmation_account_data.json";
         private readonly IAccountTools _accountTools;
+        private readonly IEmailTools _emailTools;
         public AccountService(
             IAsyncUnitOfWork unitOfWork,
             IAsyncUserRepository userRepository,
             IAsyncUserAddressRepository userAddressRepository,
             IAsyncUserPhoneNumberRepository userPhoneNumberRepository,
-            IAccountTools accountTools)
+            IAccountTools accountTools,
+            IEmailTools emailTools)
         {
             _unitOfWork = unitOfWork;
             _userRepository = userRepository;
             _userAddressRepository = userAddressRepository;
             _userPhoneNumberRepository = userPhoneNumberRepository;
             _accountTools = accountTools;
+            _emailTools = emailTools;
         }
 
         public async Task<int> RegisterUserAsync(UserRequest user)
         {
+            var userInDb = await _userRepository.FirstOrDefaultAsync(u => u.IdentificationDocument == user.IdentificationDocument);
+
+            if (userInDb != null)
+                throw new Exception("El usuario con esta céudula ya está registrado en el sistema, intente con uno nuevo");
+            
             User userEntity = new User()
             {
                 FullName = user.FullName,
@@ -85,7 +93,7 @@ namespace Morocoto.Infraestructure.Services
             await _userRepository.AddElementAsync(userEntity);
             await _userAddressRepository.AddElementsAsync(userEntity.UserAddresses);
             await _userPhoneNumberRepository.AddElementsAsync(userEntity.UserPhoneNumbers);
-            await _accountTools.SendEmailConfirmationAsync(userEntity.Email);
+            await _accountTools.SendEmailConfirmationAsync(userEntity.Email, "");
             return await _unitOfWork.CompleteAsync();
         }
      
@@ -129,13 +137,20 @@ namespace Morocoto.Infraestructure.Services
             }
         }
 
-        public async Task<UserResponse> SignInAsync(string identificationDocument, string password)
+        public async Task<UserResponse> SignInAsync(string identificationDocument, string password, string userPhone, string osPhone)
         {
-            //TODO: Confirmar el dispositivo de inicio de sesión del usuario.
             var user = await _userRepository.FirstOrDefaultAsync(user => user.IdentificationDocument == identificationDocument && user.UserPassword == Encryption.Encrypt(password));
 
             if(user != null)
             {
+                if(!user.UserPhone.Equals(userPhone) && !user.OsPhone.Equals(osPhone)) 
+                {
+                    string body = $"<b style='color: red;'>ALERTA: </b> se ha iniciado sesión con un nuevo dispositivo no reconocido, {userPhone} - {osPhone}, si no reconoces este inicio de sesión, por favor verifica tu cuenta.";
+                    string subject = "Inicio de sesión no reconocido en tu cuenta de Morocoto App";
+
+                    await _emailTools.SendEmailWithInfoAsync(user.Email, subject, body);
+                }
+                    
                 if (!user.Active)
                     throw new Exception("El usuario está inactivo, por favor confirme su cuenta");
                 
@@ -153,7 +168,7 @@ namespace Morocoto.Infraestructure.Services
         {
             //TODO: Enviar correo de verificación cambio contraseña.
             var user = await _userRepository.FirstOrDefaultAsync(u => u.IdentificationDocument == changePasswordRequest.IdentificationDocument);
-            if(user != null)
+            if (user != null)
             {
                 if (user.SecurityQuestionId == changePasswordRequest.SecurityQuestionId && user.SecurityAnswer == Encryption.Encrypt(changePasswordRequest.SecurityQuestionAnswer))
                 {
@@ -170,6 +185,8 @@ namespace Morocoto.Infraestructure.Services
                     throw new Exception("La respuesta de seguridad es incorrecta");
                 }
             }
+            else
+                throw new Exception($"El usuario con la cédula {changePasswordRequest.IdentificationDocument} no existe");
             return 0;
         }
     }

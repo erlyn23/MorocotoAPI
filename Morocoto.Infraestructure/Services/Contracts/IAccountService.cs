@@ -12,7 +12,7 @@ namespace Morocoto.Infraestructure.Services.Contracts
     {
         Task<int> RegisterUserAsync(UserRequest user);
         Task<bool> SetAccountActive(string identificationDocument, string verificationNumber);
-        Task<UserResponse> SignInAsync(string identificationDocument, string password);
+        Task<UserResponse> SignInAsync(string identificationDocument, string password, string userPhone, string osPhone);
         Task<int> RecoverPasswordAsync(ChangePasswordRequest changePasswordRequest);
     }
 }

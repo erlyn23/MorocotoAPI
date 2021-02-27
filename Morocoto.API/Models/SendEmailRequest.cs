@@ -5,11 +5,9 @@ using System.Threading.Tasks;
 
 namespace Morocoto.API.Models
 {
-    public class AuthModel
+    public class SendEmailRequest
     {
         public string IdentificationDocument { get; set; }
-        public string UserPassword { get; set; }
-        public string UserPhone { get; set; }
-        public string OsPhone { get; set; }
+        public string UserEmail { get; set; }
     }
 }

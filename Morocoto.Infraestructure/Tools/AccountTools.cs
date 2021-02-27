@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Morocoto.Domain.Contracts;
 using Morocoto.Domain.Models;
 using Morocoto.Infraestructure.Dtos.Responses;
+using Morocoto.Infraestructure.Services.Contracts;
 using Morocoto.Infraestructure.Tools.Contracts;
 using Newtonsoft.Json;
 using System;
@@ -22,47 +24,72 @@ namespace Morocoto.Infraestructure.Tools
         private readonly BuildConfirmations _confirmations = new BuildConfirmations();
         private readonly IConfiguration _configuration;
         private readonly string filePath = $"{Environment.CurrentDirectory}/confirmation_account_data.json";
+        private readonly IEmailTools _emailTools;
+        private readonly IAsyncUserRepository _userRepository;
 
-        public AccountTools(IConfiguration configuration)
+        public AccountTools(IConfiguration configuration, IEmailTools emailTools, IAsyncUserRepository userRepository)
         {
             _configuration = configuration;
+            _emailTools = emailTools;
+            _userRepository = userRepository;
         }
 
-        public async Task<EmailVerificationResponse> SendEmailConfirmationAsync(string userEmail)
+        public async Task<EmailVerificationResponse> SendEmailConfirmationAsync(string userEmail, string identificationDocument  = "")
         {
             var emailVerification = new EmailVerificationResponse();
-            emailVerification.UserEmail = userEmail;
+            User user = null;
+
+            if (!string.IsNullOrEmpty(identificationDocument))
+            {
+                user = await _userRepository.FirstOrDefaultAsync(u => u.IdentificationDocument == identificationDocument);
+                emailVerification.UserEmail = user.Email;
+            }
+            else
+            {
+                emailVerification.UserEmail = userEmail;
+            }
             emailVerification.RandomCode = _confirmations.BuildConfirmationCode();
             emailVerification.ExpireDate = DateTime.UtcNow.AddMinutes(30);
             
-            string appEmail = _configuration["EmailAccount:AppEmail"];
-            string appEmailPassword = _configuration["EmailAccount:AppEmailPassword"];
-
-            SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
-            smtpClient.Credentials = new NetworkCredential(appEmail, appEmailPassword);
-            smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
-            smtpClient.EnableSsl = true;
-            
-            MailMessage mailMessage = new MailMessage();
-            mailMessage.From = new MailAddress(appEmail, "Morocoto App");
-            mailMessage.To.Add(new MailAddress(userEmail));
-            mailMessage.Subject = "Confirmación de cuenta MorocotoApp";
-            mailMessage.Body = $"Hola, el número de verificación de tu cuenta de Morocoto es: " +
+            string subject = "Confirmación de cuenta MorocotoApp";
+            string body = $"Hola, el número de verificación de tu cuenta de Morocoto es: " +
             $"<b>{emailVerification.RandomCode}</b>, y expira en los próximos <b>30 minutos.</b>";
-            mailMessage.IsBodyHtml = true;
-
             try
             {
-                await smtpClient.SendMailAsync(mailMessage);
-                CreateJsonFileWithConfirmationData(emailVerification);
+                var isEmailSended = await _emailTools.SendEmailWithInfoAsync(userEmail, subject, body);
+                if (isEmailSended)
+                    CreateJsonFileWithConfirmationData(emailVerification);
+                return emailVerification;
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-
-            return emailVerification;
         }
+
+        public async Task<EmailVerificationResponse> SendEmailConfirmationAsync(string identificationDocument)
+        {
+            var emailVerification = new EmailVerificationResponse();
+            var user = await _userRepository.FirstOrDefaultAsync(user => user.IdentificationDocument == identificationDocument);
+            emailVerification.UserEmail = user.Email;
+            emailVerification.RandomCode = _confirmations.BuildConfirmationCode();
+            emailVerification.ExpireDate = DateTime.UtcNow.AddMinutes(30);
+
+            string subject = "Confirmación de cuenta MorocotoApp";
+            string body = $"Hola, el número de verificación de tu cuenta de Morocoto es: <b>{emailVerification.RandomCode}</b>, y expira en los próximos <b>30 minutos.</b>";
+            try
+            {
+                var isEmailSended = await _emailTools.SendEmailWithInfoAsync(user.Email, subject, body);
+                if (isEmailSended)
+                    CreateJsonFileWithConfirmationData(emailVerification);
+                return emailVerification;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public void CreateJsonFileWithConfirmationData(EmailVerificationResponse emailVerificationResponse)
         {
             var emailVerifications = GetConfirmationDataFromJsonFile();
@@ -127,7 +154,7 @@ namespace Morocoto.Infraestructure.Tools
             var securityTokenDescriptor = new SecurityTokenDescriptor()
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(3),
+                Expires = DateTime.UtcNow.AddMinutes(20),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = jwtTokenHandler.CreateToken(securityTokenDescriptor);

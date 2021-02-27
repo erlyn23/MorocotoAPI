@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Morocoto.Infraestructure.Dtos.Requests;
 using Morocoto.Infraestructure.Dtos.Responses;
@@ -11,7 +13,8 @@ using System.Threading.Tasks;
 namespace Morocoto.API.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
+    [ApiController] 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class BusinessController : ControllerBase
     {
         private readonly UnitOfWork _work;
@@ -43,6 +46,5 @@ namespace Morocoto.API.Controllers
             }
             return BadRequest();
         }
-
     }
 }
