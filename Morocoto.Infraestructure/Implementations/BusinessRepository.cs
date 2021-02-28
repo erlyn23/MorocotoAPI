@@ -29,14 +29,12 @@ namespace Morocoto.Infraestructure.Implementations
         //Note: BusinessAccountNumber is encrypted.
         public async Task<Business> GetBusinessByAccountNumberAsync(string businessAccountNumber)
         { 
-            var businessNumberEncrypted = Encryption.Encrypt(businessAccountNumber);
-            var response = await _dbContext.Businesses.FirstOrDefaultAsync(x => x.BusinessNumber == businessNumberEncrypted);
+            var response = await _dbContext.Businesses.FirstOrDefaultAsync(x => x.BusinessNumber == businessAccountNumber);
             return response;
         }
         public async Task<bool> IsAbleForSell(string businessAccountNumber, double creditRequested)
         {
-            var businessNumberEncrypted = Encryption.Encrypt(businessAccountNumber);
-            var response = await _dbContext.Businesses.FirstOrDefaultAsync(x => x.BusinessNumber == businessNumberEncrypted);
+            var response = await _dbContext.Businesses.FirstOrDefaultAsync(x => x.BusinessNumber == businessAccountNumber);
 
             if (response.BusinessCreditAvailable >= (int)creditRequested)
             {

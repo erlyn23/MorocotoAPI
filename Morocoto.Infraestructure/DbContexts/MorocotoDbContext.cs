@@ -37,8 +37,9 @@ namespace Morocoto.Domain.DbContexts
         public virtual DbSet<UserPhoneNumber> UserPhoneNumbers { get; set; }
         public virtual DbSet<UserType> UserTypes { get; set; }
 
-        protected internal virtual void OnConfiguring(DbContextOptionsBuilder<MorocotoDbContext> optionsBuilder)
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            optionsBuilder.UseSqlServer("Data source = DESKTOP-L2QEUDE\\SQLEXPRESS; Database = morocotoDb; Integrated security = True");
 
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -47,7 +48,9 @@ namespace Morocoto.Domain.DbContexts
 
             modelBuilder.Entity<Business>(entity =>
             {
-                entity.ToTable("Business");
+                entity.Property<string>("Business")
+                            .HasColumnName("Business")
+                            .HasMaxLength(10);
 
                 entity.HasIndex(e => e.BusinessNumber, "Business_BusinessNumber_idx")
                     .IsUnique();

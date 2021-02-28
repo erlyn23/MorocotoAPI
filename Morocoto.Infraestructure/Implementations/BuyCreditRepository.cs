@@ -49,8 +49,8 @@ namespace Morocoto.Infraestructure.Implementations
             var tax = await _tax.CalculateTax(creditSelled);
 
             decimal commission = creditSelled * tax.Tax;
-            var customerResponse = await _customerRepository.FirstOrDefaultAsync(x => x.IdNavigation.AccountNumber == Encryption.Encrypt(accountCustomer));
-            var businessResponse = await _businessRepository.FirstOrDefaultAsync(x => x.BusinessNumber == Encryption.Encrypt(accountBusiness));
+            var customerResponse = await _customerRepository.FirstOrDefaultAsync(x => x.IdNavigation.AccountNumber ==accountCustomer);
+            var businessResponse = await _businessRepository.FirstOrDefaultAsync(x => x.BusinessNumber == accountBusiness);
             if (businessResponse.Partner.IdNavigation.Pin.Equals(Encryption.Encrypt(PIN)))
             {
                 try
@@ -61,6 +61,8 @@ namespace Morocoto.Infraestructure.Implementations
                     Credit.CreditBought = creditSelled;
                     Credit.CustomerTaxId = tax.Id;
                     Credit.TransactionNumber=_confirmations.BuildConfirmationCode();
+                    Credit.CreditBoughtDate = DateTime.Today;
+
                     await _dbContext.BuyCredits.AddAsync(Credit);
                     customerResponse.CreditAvailable = customerResponse.CreditAvailable + (creditSelled - commission);
                     // 20,000 => 2,000 comision:100

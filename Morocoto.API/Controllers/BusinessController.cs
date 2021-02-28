@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Morocoto.API.Models;
 using Morocoto.Infraestructure.Dtos.Requests;
 using Morocoto.Infraestructure.Dtos.Responses;
 using Morocoto.Infraestructure.Implementations;
@@ -24,7 +25,7 @@ namespace Morocoto.API.Controllers
             this._work = work;
         }
 
-        [HttpGet("/GetAllBusiness/{partnerId}")]
+        [HttpGet("GetAllBusiness/{partnerId}")]
         public async Task<ActionResult<IEnumerable<BusinessResponse>>> GetAll(int partnerId)
         {
             var response = await _work.BusinessRepository.GetAllPartnerBusinessesAsync(x=>x.PartnerId==partnerId);
@@ -33,15 +34,17 @@ namespace Morocoto.API.Controllers
         }
         
         [HttpPost]
-        public async Task<ActionResult<string>> SellCredit(string businessAccountNumber,string customerAccountNumber, int creditRequested, string pin )
+        public async Task<ActionResult<string>> SellCredit([FromBody] SellCreditModel model )
         {
-            
-            var business = await _work.BusinessRepository.GetBusinessByAccountNumberAsync(businessAccountNumber);
-            var isAbleToSell = await _work.BusinessRepository.IsAbleForSell(business.BusinessNumber,creditRequested);
+            //Optimization: move this to other service.
+            var business = await _work.BusinessRepository.GetBusinessByAccountNumberAsync(model.BusinessAccountNumber);
+            var isAbleToSell = await _work.BusinessRepository.IsAbleForSell(model.BusinessAccountNumber,model.CreditSelled);
             
             if (isAbleToSell)
             {
-                string response=await _work.BuyCreditRepository.SellCredit(businessAccountNumber,customerAccountNumber,creditRequested,pin);
+                string response=await _work.BuyCreditRepository.SellCredit(model.BusinessAccountNumber,model.CustomerAccountNumber,(int)model.CreditSelled, model.Pin);
+                await _work.CompleteAsync();
+                await _work.DisposeAsync();
                 return Ok(response);
             }
             return BadRequest();
