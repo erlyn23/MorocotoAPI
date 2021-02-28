@@ -39,8 +39,7 @@ namespace Morocoto.Domain.DbContexts
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data source = DESKTOP-L2QEUDE\\SQLEXPRESS; Database = morocotoDb; Integrated security = True");
-
+            optionsBuilder.UseSqlServer("Data source = DESKTOP-K52QB7F; Database = morocotoDb; Integrated security = True");
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -187,7 +187,6 @@ namespace Morocoto.Infraestructure.Services
             }
             else
                 throw new Exception($"El usuario con la cédula {changePasswordRequest.IdentificationDocument} no existe");
-            return 0;
         }
     }
 }
