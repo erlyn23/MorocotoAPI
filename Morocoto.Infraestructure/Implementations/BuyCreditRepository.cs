@@ -72,11 +72,11 @@ namespace Morocoto.Infraestructure.Implementations
                 catch (Exception ex)
                 {
                     _logger.LogError(ex.Message);
-                    return "La transaccion ha fallado!";
+                    throw new Exception("La transacción ha fallado");
                 }
             }
-                return "El PIN ingresado es incorrecto, intentalo otra vez!";
-          
+            throw new Exception("El PIN ingresado es incorrecto, intentalo otra vez!");
+
         }
 
 

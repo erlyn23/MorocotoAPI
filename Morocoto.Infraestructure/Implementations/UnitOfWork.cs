@@ -28,7 +28,7 @@ namespace Morocoto.Infraestructure.Implementations
             _dbContext = dbContext;
         }
 
-        public UserRepository UserRepository
+        public IAsyncUserRepository UserRepository
         {
             get
             {
@@ -38,7 +38,7 @@ namespace Morocoto.Infraestructure.Implementations
             }
         }
 
-        public UserAddressRepository UserAddressRepository
+        public IAsyncUserAddressRepository UserAddressRepository
         {
             get
             {
@@ -47,7 +47,7 @@ namespace Morocoto.Infraestructure.Implementations
                 return (UserAddressRepository)_userAddressRepository;
             }
         }
-        public UserPhoneNumberRepository UserPhoneNumberRepository
+        public IAsyncUserPhoneNumberRepository UserPhoneNumberRepository
         {
             get
             {
@@ -57,7 +57,7 @@ namespace Morocoto.Infraestructure.Implementations
             }
         }
 
-        public BusinessRepository BusinessRepository
+        public IAsyncBusinessRepository BusinessRepository
         {
             get
             {
@@ -66,7 +66,7 @@ namespace Morocoto.Infraestructure.Implementations
                 return (BusinessRepository)_businessRepository;
             }
         }
-        public BusinessBillRepository BusinessBillRepository
+        public IAsyncBusinessBillRepository BusinessBillRepository
         {
             get
             {
@@ -75,7 +75,7 @@ namespace Morocoto.Infraestructure.Implementations
                 return (BusinessBillRepository)_businessBillRepository;
             }
         }
-        public BusinessPhoneNumberRepository BusinessPhoneNumberRepository
+        public IAsyncBusinessPhoneNumberRepository BusinessPhoneNumberRepository
         {
             get
             {
@@ -84,7 +84,7 @@ namespace Morocoto.Infraestructure.Implementations
                 return (BusinessPhoneNumberRepository)_businessPhoneNumberRepository;
             }
         }
-        public BusinessAddressRepository BusinessAddressRepository
+        public IAsyncBusinessAddressRepository BusinessAddressRepository
         {
             get
             {
@@ -93,7 +93,7 @@ namespace Morocoto.Infraestructure.Implementations
                 return (BusinessAddressRepository)_businessAddressRepository;
             }
         }
-        public BuyCreditRepository BuyCreditRepository
+        public IAsyncBuyCreditRepository BuyCreditRepository
         {
             get
             {
@@ -102,7 +102,7 @@ namespace Morocoto.Infraestructure.Implementations
                 return (BuyCreditRepository)_buyCreditRepository;
             }
         }
-        public CustomerRepository CustomerRepository
+        public IAsyncCustomerRepository CustomerRepository
         {
             get
             {
@@ -111,7 +111,7 @@ namespace Morocoto.Infraestructure.Implementations
                 return (CustomerRepository)_customerRepository;
             }
         }
-        public CustomerTaxesRepository CustomerTaxesRepository
+        public IAsyncCustomerTaxesRepository CustomerTaxesRepository
         {
             get
             {
@@ -120,7 +120,7 @@ namespace Morocoto.Infraestructure.Implementations
                 return (CustomerTaxesRepository)_customerTaxesRepository;
             }
         }
-        public PartnerRepository PartnerRepository
+        public IAsyncPartnerRepository PartnerRepository
         {
             get
             {
@@ -129,7 +129,7 @@ namespace Morocoto.Infraestructure.Implementations
                 return (PartnerRepository)_partnerRepository;
             }
         }
-        public RequestRepository RequestRepository
+        public IAsyncRequestRepository RequestRepository
         {
             get
             {
@@ -139,7 +139,7 @@ namespace Morocoto.Infraestructure.Implementations
             }
         }
 
-        public TransactionRepository TransactionRepository
+        public IAsyncTransactionRepository TransactionRepository
         {
             get
             {

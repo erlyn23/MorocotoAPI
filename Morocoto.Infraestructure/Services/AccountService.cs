@@ -48,11 +48,14 @@ namespace Morocoto.Infraestructure.Services
 
         public async Task<int> RegisterUserAsync(UserRequest user)
         {
-            var userInDb = await _userRepository.FirstOrDefaultAsync(u => u.IdentificationDocument == user.IdentificationDocument);
+            var userInDbWithIdentificationDocument = await _userRepository.FirstOrDefaultAsync(u => u.IdentificationDocument == user.IdentificationDocument);
+            var userInDbWithEmail = await _userRepository.FirstOrDefaultAsync(u => u.Email == user.Email);
 
-            if (userInDb != null)
-                throw new Exception("El usuario con esta céudula ya está registrado en el sistema, intente con uno nuevo");
-            
+            if(userInDbWithIdentificationDocument != null)
+                throw new Exception("ERRU001");
+            else if (userInDbWithEmail != null)
+                throw new Exception("ERRU002");
+
             User userEntity = new User()
             {
                 FullName = user.FullName,
@@ -93,7 +96,7 @@ namespace Morocoto.Infraestructure.Services
             await _userRepository.AddElementAsync(userEntity);
             await _userAddressRepository.AddElementsAsync(userEntity.UserAddresses);
             await _userPhoneNumberRepository.AddElementsAsync(userEntity.UserPhoneNumbers);
-            await _accountTools.SendEmailConfirmationAsync(userEntity.Email, "");
+            await _accountTools.SendEmailConfirmationAsync(userEntity.Email);
             return await _unitOfWork.CompleteAsync();
         }
      
@@ -128,12 +131,12 @@ namespace Morocoto.Infraestructure.Services
                 }
                 else 
                 {
-                    throw new Exception("El código de verificación no es válido");
+                    throw new Exception("ERAC001");
                 }
             }
             else
             {
-                throw new Exception("El código de verificación ya expiró");
+                throw new Exception("ERAC002");
             }
         }
 
@@ -152,7 +155,7 @@ namespace Morocoto.Infraestructure.Services
                 }
                     
                 if (!user.Active)
-                    throw new Exception("El usuario está inactivo, por favor confirme su cuenta");
+                    throw new Exception("ERSI002");
                 
                 return new UserResponse()
                 {
@@ -161,7 +164,7 @@ namespace Morocoto.Infraestructure.Services
                 };
             }
             else
-                throw new Exception("Usuario o contraseña incorrecta, por favor verifique sus datos");
+                throw new Exception("ERSI001");
         }
 
         public async Task<int> RecoverPasswordAsync(ChangePasswordRequest changePasswordRequest)
@@ -173,20 +176,20 @@ namespace Morocoto.Infraestructure.Services
                 if (user.SecurityQuestionId == changePasswordRequest.SecurityQuestionId && user.SecurityAnswer == Encryption.Encrypt(changePasswordRequest.SecurityQuestionAnswer))
                 {
                     if (!string.Equals(changePasswordRequest.Password1, changePasswordRequest.Password2))
-                        throw new Exception("Las contraseñas no coinciden");
+                        throw new Exception("ERCP003");
                     if (string.Equals(Encryption.Encrypt(changePasswordRequest.Password1), user.UserPassword))
-                        throw new Exception("La contraseña no puede ser igual a la anterior");
+                        throw new Exception("ERCP004");
 
                     user.UserPassword = Encryption.Encrypt(changePasswordRequest.Password1);
                     return await _unitOfWork.CompleteAsync();
                 }
                 else
                 {
-                    throw new Exception("La respuesta de seguridad es incorrecta");
+                    throw new Exception("ERCP002");
                 }
             }
             else
-                throw new Exception($"El usuario con la cédula {changePasswordRequest.IdentificationDocument} no existe");
+                throw new Exception("ERCP001");
         }
     }
 }
