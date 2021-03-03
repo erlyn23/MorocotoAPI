@@ -13,6 +13,7 @@ namespace Morocoto.Infraestructure.Services
     public class BusinessService : IBusinessService
     {
         private readonly IAsyncUnitOfWork _unitOfWork;
+
         public BusinessService(IAsyncUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -49,9 +50,10 @@ namespace Morocoto.Infraestructure.Services
                 };
                 businessEntity.BusinessPhoneNumbers.Add(businessPhoneNumberEntity);
             }
-            await _unitOfWork.BusinessRepository.AddElementAsync(businessEntity);
+
             await _unitOfWork.BusinessAddressRepository.AddElementsAsync(businessEntity.BusinessAddresses);
             await _unitOfWork.BusinessPhoneNumberRepository.AddElementsAsync(businessEntity.BusinessPhoneNumbers);
+            await _unitOfWork.BusinessRepository.AddElementAsync(businessEntity);
             var saveResult = await _unitOfWork.CompleteAsync();
             if(saveResult > 0)
             {

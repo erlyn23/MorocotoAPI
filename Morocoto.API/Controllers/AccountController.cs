@@ -20,13 +20,16 @@ namespace Morocoto.API.Controllers
     {
         private readonly IAsyncUserRepository _userRepository;
         private readonly IAccountService _accountService;
+        private readonly IAsyncUnitOfWork _unitOfWork;
         private readonly IAccountTools _accountTools;
 
-        public AccountController(IAccountService accountService, IAccountTools accountTools, IAsyncUserRepository userRepository)
+        public AccountController(IAccountService accountService, 
+            IAccountTools accountTools, IAsyncUserRepository userRepository, IAsyncUnitOfWork unitOfWork)
         {
             _accountService = accountService;
             _accountTools = accountTools;
             _userRepository = userRepository;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpPost(Name = "SaveUser")]
@@ -51,6 +54,10 @@ namespace Morocoto.API.Controllers
 
                 return BadRequest("Ha ocurrido un error internto en la base de datos");
             }
+            finally
+            {
+                await _unitOfWork.DisposeAsync();
+            }
         }
 
         [HttpPost("SignIn")]
@@ -71,6 +78,10 @@ namespace Morocoto.API.Controllers
                 else if (string.Equals(ex.Message, "ERSI002"))
                     return BadRequest("El usuario está inactivo.");
                 return BadRequest("Ha ocurrido un error al iniciar sesión.");
+            }
+            finally
+            {
+                await _unitOfWork.DisposeAsync();
             }
         }
 
@@ -102,9 +113,13 @@ namespace Morocoto.API.Controllers
                     return Ok(emailVerificationResponse);
                 return BadRequest();
             }
-            catch(Exception ex)
+            catch
             {
                 return BadRequest("Ha ocurrido un error interno al enviar el correo de verificación.");
+            }
+            finally
+            {
+                await _unitOfWork.DisposeAsync();
             }
         }
 
@@ -127,6 +142,10 @@ namespace Morocoto.API.Controllers
                     return BadRequest("El código de verificación ya expiró.");
 
                 return BadRequest("Ha ocurrido un error interno al verificar cuenta.");
+            }
+            finally
+            {
+                await _unitOfWork.DisposeAsync();
             }
         }
         [HttpPatch("ChangePassword")]
@@ -152,6 +171,10 @@ namespace Morocoto.API.Controllers
 
 
                 return BadRequest("Ha ocurrido un error al cambiar contraseña.");
+            }
+            finally
+            {
+                await _unitOfWork.DisposeAsync();
             }
         }
     }

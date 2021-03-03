@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Morocoto.API.Models;
+using Morocoto.Domain.Contracts;
 using Morocoto.Infraestructure.Dtos.Requests;
 using Morocoto.Infraestructure.Dtos.Responses;
 using Morocoto.Infraestructure.Implementations;
@@ -19,10 +20,10 @@ namespace Morocoto.API.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class BusinessController : ControllerBase
     {
-        private readonly UnitOfWork _work;
+        private readonly IAsyncUnitOfWork _work;
         private readonly IBusinessService _businessService;
 
-        public BusinessController(UnitOfWork work, IBusinessService businessService)
+        public BusinessController(IAsyncUnitOfWork work, IBusinessService businessService)
         {
             _work = work;
             _businessService = businessService;
@@ -49,6 +50,10 @@ namespace Morocoto.API.Controllers
             catch(Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+            finally
+            { 
+                await _work.DisposeAsync();
             }
         }
         
