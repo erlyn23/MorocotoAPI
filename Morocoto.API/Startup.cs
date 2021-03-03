@@ -73,12 +73,24 @@ namespace Morocoto.API
                 };
             });
 
-            services.AddTransient<IAccountService, AccountService>();
+            //Dependency Injection: Unit Of Work.
             services.AddTransient<IAsyncUnitOfWork, UnitOfWork>();
+
+            //Dependency Injection: Account.
+            services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<IAsyncUserRepository, UserRepository>();
             services.AddTransient<IAsyncUserAddressRepository, UserAddressRepository>();
             services.AddTransient<IAsyncUserPhoneNumberRepository, UserPhoneNumberRepository>();
             services.AddTransient<IAccountTools, AccountTools>();
+
+            //Dependency Injection: Business.
+            services.AddTransient<IBusinessService, BusinessService>();
+            services.AddTransient<IAsyncBusinessRepository, BusinessRepository>();
+            services.AddTransient<IAsyncBusinessPhoneNumberRepository, BusinessPhoneNumberRepository>();
+            services.AddTransient<IAsyncBusinessAddressRepository, BusinessAddressRepository>();
+            services.AddTransient<IAsyncBusinessBillRepository, BusinessBillRepository>();
+
+            //Dependency Injection: Email.
             services.AddSingleton<IEmailTools, EmailTools>();
         }
 

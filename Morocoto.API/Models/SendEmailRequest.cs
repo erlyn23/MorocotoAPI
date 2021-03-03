@@ -9,5 +9,6 @@ namespace Morocoto.API.Models
     {
         public string IdentificationDocument { get; set; }
         public string UserEmail { get; set; }
+        public string VerificationType { get; set; }
     }
 }

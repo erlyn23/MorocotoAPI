@@ -34,20 +34,10 @@ namespace Morocoto.Infraestructure.Tools
             _userRepository = userRepository;
         }
 
-        public async Task<EmailVerificationResponse> SendEmailConfirmationAsync(string userEmail, string identificationDocument  = "")
+        public async Task<EmailVerificationResponse> SendEmailConfirmationAsync(string userEmail)
         {
             var emailVerification = new EmailVerificationResponse();
-            User user = null;
-
-            if (!string.IsNullOrEmpty(identificationDocument))
-            {
-                user = await _userRepository.FirstOrDefaultAsync(u => u.IdentificationDocument == identificationDocument);
-                emailVerification.UserEmail = user.Email;
-            }
-            else
-            {
-                emailVerification.UserEmail = userEmail;
-            }
+            emailVerification.UserEmail = userEmail;
             emailVerification.RandomCode = _confirmations.BuildConfirmationCode();
             emailVerification.ExpireDate = DateTime.UtcNow.AddMinutes(30);
             
@@ -62,29 +52,6 @@ namespace Morocoto.Infraestructure.Tools
                 return emailVerification;
             }
             catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public async Task<EmailVerificationResponse> SendEmailConfirmationAsync(string identificationDocument)
-        {
-            var emailVerification = new EmailVerificationResponse();
-            var user = await _userRepository.FirstOrDefaultAsync(user => user.IdentificationDocument == identificationDocument);
-            emailVerification.UserEmail = user.Email;
-            emailVerification.RandomCode = _confirmations.BuildConfirmationCode();
-            emailVerification.ExpireDate = DateTime.UtcNow.AddMinutes(30);
-
-            string subject = "Confirmación de cuenta MorocotoApp";
-            string body = $"Hola, el número de verificación de tu cuenta de Morocoto es: <b>{emailVerification.RandomCode}</b>, y expira en los próximos <b>30 minutos.</b>";
-            try
-            {
-                var isEmailSended = await _emailTools.SendEmailWithInfoAsync(user.Email, subject, body);
-                if (isEmailSended)
-                    CreateJsonFileWithConfirmationData(emailVerification);
-                return emailVerification;
-            }
-            catch(Exception ex)
             {
                 throw ex;
             }
@@ -148,7 +115,8 @@ namespace Morocoto.Infraestructure.Tools
             {
                 new Claim(ClaimTypes.NameIdentifier, user.IdentificationDocument),
                 new Claim("AccountNumber", user.AccountNumber),
-                new Claim("Id", user.Id.ToString())
+                new Claim("Id", user.Id.ToString()),
+                new Claim("UserType", user.UserTypeId.ToString())
             };
 
             var securityTokenDescriptor = new SecurityTokenDescriptor()

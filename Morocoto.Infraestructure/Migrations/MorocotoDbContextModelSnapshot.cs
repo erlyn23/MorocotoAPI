@@ -360,6 +360,30 @@ namespace Morocoto.Infraestructure.Migrations
                     b.ToTable("SecurityQuestions");
                 });
 
+            modelBuilder.Entity("Morocoto.Domain.Models.SystemError", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ErrorCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Method")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Service")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SystemErrors");
+                });
+
             modelBuilder.Entity("Morocoto.Domain.Models.Transaction", b =>
                 {
                     b.Property<int>("Id")
