@@ -26,9 +26,9 @@ namespace Morocoto.API.Controllers
         }
 
         [HttpGet("GetAllBusiness/{partnerId}")]
-        public async Task<ActionResult<IEnumerable<BusinessResponse>>> GetAll(int partnerId)
+        public async Task<ActionResult<IEnumerable<BusinessResponse>>> GetAll(string partnerAccountNumber)
         {
-            var response = await _work.BusinessRepository.GetAllPartnerBusinessesAsync(x=>x.PartnerId==partnerId);
+            var response = await _work.BusinessRepository.GetAllPartnerBusinessesAsync(x=>x.Partner.IdNavigation.AccountNumber==partnerAccountNumber);
 
             return Ok(response);
         }

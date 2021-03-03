@@ -37,10 +37,7 @@ namespace Morocoto.Domain.DbContexts
         public virtual DbSet<UserPhoneNumber> UserPhoneNumbers { get; set; }
         public virtual DbSet<UserType> UserTypes { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer("Data source = DESKTOP-K52QB7F; Database = morocotoDb; Integrated security = True");
-        }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "Modern_Spanish_CI_AS");
