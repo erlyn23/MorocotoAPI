@@ -43,10 +43,7 @@ namespace Morocoto.Domain.DbContexts
             modelBuilder.HasAnnotation("Relational:Collation", "Modern_Spanish_CI_AS");
 
             modelBuilder.Entity<Business>(entity =>
-            {
-                entity.Property<string>("Business")
-                            .HasColumnName("Business")
-                            .HasMaxLength(10);
+            { 
 
                 entity.HasIndex(e => e.BusinessNumber, "Business_BusinessNumber_idx")
                     .IsUnique();

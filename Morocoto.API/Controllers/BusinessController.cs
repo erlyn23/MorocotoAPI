@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,21 +23,23 @@ namespace Morocoto.API.Controllers
     {
         private readonly IAsyncUnitOfWork _work;
         private readonly IBusinessService _businessService;
+        private readonly IMapper _mapper;
 
-        public BusinessController(IAsyncUnitOfWork work, IBusinessService businessService)
+        public BusinessController(IAsyncUnitOfWork work, IBusinessService businessService, IMapper mapper)
         {
             _work = work;
             _businessService = businessService;
+            _mapper = mapper;
         }
 
         [HttpGet("GetAllBusiness/{partnerId}")]
-        public async Task<ActionResult<IEnumerable<BusinessResponse>>> GetAll(string partnerAccountNumber)
+        public async Task<ActionResult<IEnumerable<BusinessResponse>>> GetAll(int partnerId)
         {
 
-            var response = await _work.BusinessRepository.GetAllPartnerBusinessesAsync(x=>x.Partner.IdNavigation.AccountNumber==partnerAccountNumber);
+            var response = await _work.BusinessRepository.GetAllPartnerBusinessesAsync(x=>x.Partner.Id==partnerId);
+            var responseDTO = _mapper.Map<IEnumerable<BusinessResponse>>(response);
 
-
-            return Ok(response);
+            return Ok(responseDTO);
         }
 
         [HttpPost(Name = "SaveBusiness")]
