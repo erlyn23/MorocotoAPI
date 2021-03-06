@@ -63,7 +63,6 @@ namespace Morocoto.API.Controllers
             try
             {
                 //Optimization: move this to other service.
-                //TODO: hacer catch de errores para lanzar excepciones.
                 var business = await _work.BusinessRepository.GetBusinessByAccountNumberAsync(model.BusinessAccountNumber);
                 var isAbleToSell = await _work.BusinessRepository.IsAbleForSell(model.BusinessAccountNumber, model.CreditSelled);
 
