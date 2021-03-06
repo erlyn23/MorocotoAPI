@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Morocoto.Domain.DbContexts;
 
 namespace Morocoto.Infraestructure.Migrations
 {
     [DbContext(typeof(MorocotoDbContext))]
-    partial class MorocotoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210304162307_dbcontext-businessName-truncate-fixed")]
+    partial class dbcontextbusinessNametruncatefixed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,6 +28,11 @@ namespace Morocoto.Infraestructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Business")
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)")
+                        .HasColumnName("Business");
 
                     b.Property<decimal?>("BusinessCreditAvailable")
                         .ValueGeneratedOnAdd()

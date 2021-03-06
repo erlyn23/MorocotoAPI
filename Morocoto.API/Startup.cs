@@ -12,6 +12,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Morocoto.Domain.Contracts;
 using Morocoto.Domain.DbContexts;
+using Morocoto.Domain.Models;
+using Morocoto.Infraestructure.Dtos.Responses;
 using Morocoto.Infraestructure.Implementations;
 using Morocoto.Infraestructure.Services;
 using Morocoto.Infraestructure.Services.Contracts;
@@ -88,6 +90,14 @@ namespace Morocoto.API
 
             //Dependency Injection: Email.
             services.AddSingleton<IEmailTools, EmailTools>();
+
+            //Dependency Injection: Automapper
+            services.AddAutoMapper(mapper => {
+
+                mapper.CreateMap<Business, BusinessResponse>();
+                
+            
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
