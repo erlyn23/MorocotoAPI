@@ -32,6 +32,12 @@ namespace Morocoto.API.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet("HasAuthorization")]
+        public ActionResult<bool> HasAthorization()
+        {
+            return Ok(true);
+        }
+
         [HttpGet("GetAllBusiness/{partnerId}")]
         public async Task<ActionResult<IEnumerable<BusinessResponse>>> GetAll(int partnerId)
         {
