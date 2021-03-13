@@ -2,7 +2,7 @@
 
 namespace Morocoto.Infraestructure.Migrations
 {
-    public partial class dbcontextbusinessNametruncatefixed : Migration
+    public partial class DbcontextbusinessNametruncatefixed : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

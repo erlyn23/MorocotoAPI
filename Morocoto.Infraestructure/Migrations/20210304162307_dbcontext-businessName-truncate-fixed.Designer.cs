@@ -11,7 +11,7 @@ namespace Morocoto.Infraestructure.Migrations
 {
     [DbContext(typeof(MorocotoDbContext))]
     [Migration("20210304162307_dbcontext-businessName-truncate-fixed")]
-    partial class dbcontextbusinessNametruncatefixed
+    partial class DbcontextbusinessNametruncatefixed
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

@@ -87,6 +87,9 @@ namespace Morocoto.API
 
             //Dependency Injection: Business.
             services.AddTransient<IBusinessService, BusinessService>();
+            
+            //DependencyInjection: Customer.
+            services.AddTransient<IAsyncCustomerTaxesRepository, CustomerTaxesRepository>();
 
             //Dependency Injection: Email.
             services.AddSingleton<IEmailTools, EmailTools>();
