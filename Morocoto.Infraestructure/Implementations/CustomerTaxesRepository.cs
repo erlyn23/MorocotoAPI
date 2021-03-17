@@ -17,6 +17,11 @@ namespace Morocoto.Infraestructure.Implementations
             this._dbContext = dbContext;
         }
 
+        public async Task<CustomerTaxis> TaxesPeerToPeer()
+        {
+            return await _dbContext.CustomerTaxes.FindAsync(1);
+        }
+
         public async Task<CustomerTaxis> CalculateTax(int creditRequested)
         {
             if (creditRequested >= 50 && 100 >= creditRequested)
@@ -52,7 +57,5 @@ namespace Morocoto.Infraestructure.Implementations
             return null;
 
         }
-
-
     }
 }

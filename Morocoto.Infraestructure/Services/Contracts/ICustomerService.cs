@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace Morocoto.Infraestructure.Services.Contracts
 {
-    public interface IBusinessService
+    public interface ICustomerService
     {
-        Task<int> SaveBusinessAsync(BusinessRequest businessRequest);
-        Task<string> SellCreditAsync(SellCreditModel model);
+        Task<string> ExecuteTransactionAsync(TransactionsRequest model);
     }
 }
