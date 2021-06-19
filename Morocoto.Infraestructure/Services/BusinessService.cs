@@ -61,5 +61,34 @@ namespace Morocoto.Infraestructure.Services
             }
             return saveResult;
         }
+
+        public async Task<string> SellCreditAsync(SellCreditModel model)
+        {
+            try
+            {
+                //Optimization: move this to other service.
+                var business = await _unitOfWork.BusinessRepository.GetBusinessByAccountNumberAsync(model.BusinessAccountNumber);
+                var isAbleToSell = await _unitOfWork.BusinessRepository.IsAbleForSell(model.BusinessAccountNumber, model.CreditSelled);
+
+                if (isAbleToSell)
+                {
+                    string response = await _unitOfWork.BuyCreditRepository.SellCredit(model.BusinessAccountNumber, model.CustomerAccountNumber, (int)model.CreditSelled, model.Pin);
+                    await _unitOfWork.CompleteAsync();
+                    return response;
+                   
+                }
+                return "Credito insuficiente para realizar la venta.";
+               
+            }
+            catch (Exception ex)
+            {
+                return "Ha ocurrido un error: "+ex.Message;
+            }
+            finally
+            {
+                await _unitOfWork.DisposeAsync();
+            }
+
+        }
     }
 }

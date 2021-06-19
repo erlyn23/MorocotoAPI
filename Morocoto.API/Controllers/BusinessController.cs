@@ -71,28 +71,11 @@ namespace Morocoto.API.Controllers
         [HttpPost("SellCredit")]
         public async Task<ActionResult<string>> SellCredit([FromBody] SellCreditModel model )
         {
-            try
+            if (model != null)
             {
-                //Optimization: move this to other service.
-                var business = await _work.BusinessRepository.GetBusinessByAccountNumberAsync(model.BusinessAccountNumber);
-                var isAbleToSell = await _work.BusinessRepository.IsAbleForSell(model.BusinessAccountNumber, model.CreditSelled);
-
-                if (isAbleToSell)
-                {
-                    string response = await _work.BuyCreditRepository.SellCredit(model.BusinessAccountNumber, model.CustomerAccountNumber, (int)model.CreditSelled, model.Pin);
-                    await _work.CompleteAsync();
-                    return Ok(response);
-                }
-                return BadRequest();
+                return Ok(await _businessService.SellCreditAsync(model));
             }
-            catch(Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            finally
-            {
-                await _work.DisposeAsync();
-            }
+            return BadRequest();
         }
     }
 }

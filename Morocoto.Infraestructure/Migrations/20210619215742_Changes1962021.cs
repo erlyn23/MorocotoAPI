@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Morocoto.Infraestructure.Migrations
 {
-    public partial class BusinessAccountNumberRefactored : Migration
+    public partial class Changes1962021 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -249,8 +249,7 @@ namespace Morocoto.Infraestructure.Migrations
                     BusinessTypeId = table.Column<int>(type: "int", nullable: false),
                     BusinessNumber = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     BusinessName = table.Column<string>(type: "varchar(80)", unicode: false, maxLength: 80, nullable: false),
-                    BusinessCreditAvailable = table.Column<decimal>(type: "decimal(13,2)", nullable: true, defaultValueSql: "((0))"),
-                    Business = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true)
+                    BusinessCreditAvailable = table.Column<decimal>(type: "decimal(13,2)", precision: 13, scale: 2, nullable: true, defaultValueSql: "((0))")
                 },
                 constraints: table =>
                 {

@@ -49,7 +49,8 @@ namespace Morocoto.Domain.DbContexts
                     .IsUnique();
 
                 entity.Property(e => e.BusinessCreditAvailable)
-                    .HasColumnType("decimal(13, 2)")
+                    .HasColumnType("decimal(13,2)")
+                    .HasPrecision(13, 2)
                     .HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.BusinessName)

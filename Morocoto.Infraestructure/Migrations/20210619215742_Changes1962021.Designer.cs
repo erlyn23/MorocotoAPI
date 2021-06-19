@@ -10,8 +10,8 @@ using Morocoto.Domain.DbContexts;
 namespace Morocoto.Infraestructure.Migrations
 {
     [DbContext(typeof(MorocotoDbContext))]
-    [Migration("20210227201903_BusinessAccountNumberRefactored")]
-    partial class BusinessAccountNumberRefactored
+    [Migration("20210619215742_Changes1962021")]
+    partial class Changes1962021
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -29,13 +29,9 @@ namespace Morocoto.Infraestructure.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Business")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnName("Business");
-
                     b.Property<decimal?>("BusinessCreditAvailable")
                         .ValueGeneratedOnAdd()
+                        .HasPrecision(13, 2)
                         .HasColumnType("decimal(13,2)")
                         .HasDefaultValueSql("((0))");
 

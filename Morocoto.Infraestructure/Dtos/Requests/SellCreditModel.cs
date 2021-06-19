@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Morocoto.API.Models
+namespace Morocoto.Infraestructure.Dtos.Requests
 {
     public class SellCreditModel
     {

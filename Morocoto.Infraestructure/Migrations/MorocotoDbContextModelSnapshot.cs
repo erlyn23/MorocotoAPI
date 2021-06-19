@@ -29,6 +29,7 @@ namespace Morocoto.Infraestructure.Migrations
 
                     b.Property<decimal?>("BusinessCreditAvailable")
                         .ValueGeneratedOnAdd()
+                        .HasPrecision(13, 2)
                         .HasColumnType("decimal(13,2)")
                         .HasDefaultValueSql("((0))");
 

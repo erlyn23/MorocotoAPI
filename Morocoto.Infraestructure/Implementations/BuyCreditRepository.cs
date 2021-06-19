@@ -14,65 +14,67 @@ namespace Morocoto.Infraestructure.Implementations
     public class BuyCreditRepository: GenericRepository<BuyCredit>, IAsyncBuyCreditRepository
     {
         private readonly MorocotoDbContext _dbContext;
-        private readonly BuildConfirmations _confirmations;
+        private readonly UserRepository _userRepository;
         private readonly CustomerTaxesRepository _taxes;
-        private readonly ILogger _logger;
-        private readonly TaxManager _tax;
+        //private readonly TaxManager _tax;
         private readonly CustomerRepository _customerRepository;
+        private readonly PartnerRepository _partnerRepository;
         private readonly BusinessRepository _businessRepository;
 
         public BuyCreditRepository(MorocotoDbContext dbContext, 
-                                    BuildConfirmations confirmations,
-                                    CustomerTaxesRepository taxes,
-                                    ILogger logger,
-                                    TaxManager tax,
-                                    CustomerRepository customerRepository,
-                                    BusinessRepository businessRepository) : base(dbContext)
+                                    IAsyncCustomerTaxesRepository taxes,
+                                    //TaxManager tax,
+                                    IAsyncCustomerRepository customerRepository,
+                                    IAsyncBusinessRepository businessRepository,
+                                    IAsyncPartnerRepository partner,
+                                    IAsyncUserRepository user) : base(dbContext)
         {
             this._dbContext = dbContext;
-            this._confirmations = confirmations;
-            this._taxes = taxes;
-            this._logger = logger;
-            this._tax = tax;
-            this._customerRepository = customerRepository;
-            this._businessRepository = businessRepository;
+            this._userRepository = (UserRepository)user;
+            this._taxes = (CustomerTaxesRepository)taxes;
+            this._partnerRepository = (PartnerRepository)partner;
+            this._customerRepository = (CustomerRepository)customerRepository;
+            this._businessRepository = (BusinessRepository)businessRepository;
         }
-        public BuyCreditRepository(MorocotoDbContext dbContext):base(dbContext)
-        {
-
-        }
+     
 
 
         public async Task<string> SellCredit(string accountBusiness, string accountCustomer, int creditSelled, string PIN)
         {
             //PLEASE!: USE PERCENTAGES FOR TAXES FIELDS! 100 => 5 5=0.05;
-            var tax = await _tax.CalculateTax(creditSelled);
+            var tax = await _taxes.CalculateTax(creditSelled);
 
             decimal commission = creditSelled * tax.Tax;
-            var customerResponse = await _customerRepository.FirstOrDefaultAsync(x => x.IdNavigation.AccountNumber ==accountCustomer);
+            var customerResponse = await _userRepository.FirstOrDefaultAsync(x=>x.AccountNumber==accountCustomer);
             var businessResponse = await _businessRepository.FirstOrDefaultAsync(x => x.BusinessNumber == accountBusiness);
-            if (businessResponse.Partner.IdNavigation.Pin.Equals(Encryption.Encrypt(PIN)))
+            var partner = await _partnerRepository.SearchByBusinesses(businessResponse);
+            var customer = await _customerRepository.FirstOrDefaultAsync(x => x.Id == customerResponse.Id);
+            var user = await _userRepository.FirstOrDefaultAsync(x => x.Id == partner.Id);
+            if (user.Pin.Equals(Encryption.Encrypt(PIN)))
             {
                 try
                 {
-                    BuyCredit Credit = new BuyCredit();
-                    Credit.CustomerId = customerResponse.Id;
-                    Credit.BusinessId = businessResponse.Id;
-                    Credit.CreditBought = creditSelled;
-                    Credit.CustomerTaxId = tax.Id;
-                    Credit.TransactionNumber=_confirmations.BuildConfirmationCode();
-                    Credit.CreditBoughtDate = DateTime.Today;
+                    BuyCredit Credit = new BuyCredit
+                    {
+                        CustomerId = customerResponse.Id,
+                        BusinessId = businessResponse.Id,
+                        CreditBought = creditSelled,
+                        CustomerTaxId = tax.Id,
+                        TransactionNumber = BuildConfirmations.BuildConfirmationCode(),
+                        CreditBoughtDate = DateTime.Today
+                    };
 
                     await _dbContext.BuyCredits.AddAsync(Credit);
-                    customerResponse.CreditAvailable = customerResponse.CreditAvailable + (creditSelled - commission);
+                    customer.CreditAvailable += (creditSelled - commission);
+                    businessResponse.BusinessCreditAvailable -= creditSelled;
                     // 20,000 => 2,000 comision:100
 
                     return Credit.TransactionNumber;
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex.Message);
-                    throw new Exception("La transacción ha fallado");
+                    
+                    throw new Exception("La transacción ha fallado"+ex.Message);
                 }
             }
             throw new Exception("El PIN ingresado es incorrecto, intentalo otra vez!");

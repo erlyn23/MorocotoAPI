@@ -21,7 +21,6 @@ namespace Morocoto.Infraestructure.Tools
 {
     public class AccountTools : IAccountTools
     {
-        private readonly BuildConfirmations _confirmations = new BuildConfirmations();
         private readonly IConfiguration _configuration;
         private readonly string filePath = $"{Environment.CurrentDirectory}/confirmation_account_data.json";
         private readonly IEmailTools _emailTools;
@@ -38,7 +37,7 @@ namespace Morocoto.Infraestructure.Tools
         {
             var emailVerification = new EmailVerificationResponse();
             emailVerification.UserEmail = userEmail;
-            emailVerification.RandomCode = _confirmations.BuildConfirmationCode();
+            emailVerification.RandomCode = BuildConfirmations.BuildConfirmationCode();
             emailVerification.ExpireDate = DateTime.UtcNow.AddMinutes(30);
             
             string subject = "Confirmación de cuenta MorocotoApp";

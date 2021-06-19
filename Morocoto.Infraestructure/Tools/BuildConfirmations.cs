@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Morocoto.Infraestructure.Tools
 {
-    public class BuildConfirmations
+    public static class BuildConfirmations
     {
-        public string BuildConfirmationCode()
+        public static string BuildConfirmationCode()
         {
             Random random = new Random();
             string randomCode = string.Empty;

@@ -22,7 +22,7 @@ namespace Morocoto.Infraestructure.Implementations
         private IAsyncPartnerRepository _partnerRepository;
         private IAsyncRequestRepository _requestRepository;
         private IAsyncTransactionRepository _transactionRepository;
-        private MorocotoDbContext _dbContext;
+        private readonly MorocotoDbContext _dbContext;
         public UnitOfWork(MorocotoDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -98,7 +98,8 @@ namespace Morocoto.Infraestructure.Implementations
             get
             {
                 if (_buyCreditRepository == null)
-                    _buyCreditRepository = new BuyCreditRepository(_dbContext);
+                    _buyCreditRepository = new BuyCreditRepository(_dbContext, CustomerTaxesRepository, CustomerRepository, BusinessRepository,PartnerRepository, UserRepository
+                        );
                 return (BuyCreditRepository)_buyCreditRepository;
             }
         }
@@ -144,7 +145,7 @@ namespace Morocoto.Infraestructure.Implementations
             get
             {
                 if (_transactionRepository == null)
-                    _transactionRepository = new TransactionRepository(_dbContext);
+                    _transactionRepository = new TransactionRepository(_dbContext, CustomerTaxesRepository, CustomerRepository,UserRepository);
                 return (TransactionRepository)_transactionRepository;
             }
         }
