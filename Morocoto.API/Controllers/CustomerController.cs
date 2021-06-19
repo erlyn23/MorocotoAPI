@@ -18,12 +18,12 @@ namespace Morocoto.API.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class CustomerController : ControllerBase
     {
-        private readonly UnitOfWork _work;
+        
         private readonly CustomerService _customerService;
 
-        public CustomerController(UnitOfWork work, CustomerService customerService)
+        public CustomerController(CustomerService customerService)
         {
-            this._work = work;
+            
             this._customerService = customerService;
         }
         [HttpGet("HasAuthorization")]
@@ -31,7 +31,7 @@ namespace Morocoto.API.Controllers
         {
             return Ok(true);
         }
-
+        [HttpPost("transaction")]
         public async Task<ActionResult<string>> CreditTransactions(TransactionsRequest model)
         {
 

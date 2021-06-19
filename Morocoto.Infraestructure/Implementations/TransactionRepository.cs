@@ -16,24 +16,21 @@ namespace Morocoto.Infraestructure.Implementations
         private readonly CustomerTaxesRepository _taxes;
         //private readonly TaxManager _tax;
         private readonly CustomerRepository _customerRepository;
-        private readonly PartnerRepository _partnerRepository;
-        private readonly BusinessRepository _businessRepository;
+       
 
         public TransactionRepository(MorocotoDbContext dbContext,
                                     IAsyncCustomerTaxesRepository taxes,
                                     //TaxManager tax,
                                     IAsyncCustomerRepository customerRepository,
-                                    IAsyncBusinessRepository businessRepository,
-                                    IAsyncPartnerRepository partner,
                                     IAsyncUserRepository user) : base(dbContext)
         {
             this._dbContext = dbContext;
             this._userRepository = (UserRepository)user;
             this._taxes = (CustomerTaxesRepository)taxes;
-            this._partnerRepository = (PartnerRepository)partner;
             this._customerRepository = (CustomerRepository)customerRepository;
-            this._businessRepository = (BusinessRepository)businessRepository;
+            
         }
+        
 
         public async Task<string> Transaction(string accountSender, string accountReciever, int creditTransfered, string PIN)
         {

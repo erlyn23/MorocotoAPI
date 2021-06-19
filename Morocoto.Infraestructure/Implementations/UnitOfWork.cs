@@ -145,7 +145,7 @@ namespace Morocoto.Infraestructure.Implementations
             get
             {
                 if (_transactionRepository == null)
-                    _transactionRepository = new TransactionRepository(_dbContext);
+                    _transactionRepository = new TransactionRepository(_dbContext, CustomerTaxesRepository, CustomerRepository,UserRepository);
                 return (TransactionRepository)_transactionRepository;
             }
         }
