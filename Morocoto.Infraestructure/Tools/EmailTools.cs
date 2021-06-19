@@ -39,9 +39,9 @@ namespace Morocoto.Infraestructure.Tools
                 await smtpClient.SendMailAsync(mailMessage);
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
         }
     }
